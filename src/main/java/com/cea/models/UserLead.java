@@ -17,7 +17,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-public class Lead implements Serializable {
+public class UserLead implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 
