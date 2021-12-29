@@ -33,15 +33,15 @@ public class FreepostController {
 		return freePostService.findOne(id);
 	}
 
-	@PostMapping("/")
-	public FreePost insert(@RequestBody FreePost freepost) {
-		return freePostService.insert(freepost);
-	}
-
-	@PutMapping("/{id}")
-	public FreePost update(@PathVariable UUID id, @RequestBody FreePost freepost) {
-		return freePostService.update(id, freepost);
-	}
+	/*	@PostMapping("/")
+		public FreePost insert(@RequestBody FreePost freepost) {
+			return freePostService.insert(freepost);
+		}
+	
+		@PutMapping("/{id}")
+		public FreePost update(@PathVariable UUID id, @RequestBody FreePost freepost) {
+			return freePostService.update(id, freepost);
+		}*/
 
 	@DeleteMapping("/{id}")
 	public void delete(@PathVariable UUID id) {
