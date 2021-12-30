@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.cea.models.UserLead;
+import com.cea.models.Lead;
 import com.cea.services.LeadService;
 
 @RestController
@@ -25,25 +25,25 @@ public class LeadController {
 	
 	/*Create*/
 	@PostMapping("/")
-	public UserLead insert(@RequestBody UserLead lead) {
+	public Lead insert(@RequestBody Lead lead) {
 		return this.leadService.insert(lead);
 	}
 	
 	/*Find All*/
 	@GetMapping("/")
-	public List<UserLead> findAll(){
+	public List<Lead> findAll(){
 		return leadService.findAll();
 	}
 	
 	/*Find One*/
 	@GetMapping("/{id}")
-	public Optional<UserLead> findById(@PathVariable UUID id){
+	public Optional<Lead> findById(@PathVariable UUID id){
 		return leadService.findById(id);
 	}
 	
 	/*Update*/
 	@PutMapping("/{id}")
-	public UserLead update(@PathVariable UUID id, @RequestBody UserLead lead) {
+	public Lead update(@PathVariable UUID id, @RequestBody Lead lead) {
 		return leadService.update(id, lead);
 	}
 }

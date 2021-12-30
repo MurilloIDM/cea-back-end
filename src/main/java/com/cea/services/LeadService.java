@@ -8,7 +8,7 @@ import java.util.UUID;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.cea.models.UserLead;
+import com.cea.models.Lead;
 import com.cea.repository.LeadRepository;
 
 @Service
@@ -17,7 +17,7 @@ public class LeadService {
 	@Autowired
 	LeadRepository leadRepository;
 	
-	public UserLead insert(UserLead lead) {
+	public Lead insert(Lead lead) {
 		// TODO: Alterar implementações para utilizar DTO
 		Date date = new Date();
 		
@@ -28,15 +28,15 @@ public class LeadService {
 		
 	}
 
-	public List<UserLead> findAll() {
+	public List<Lead> findAll() {
 		return leadRepository.findAll();
 	}
 
-	public Optional<UserLead> findById(UUID id) {
+	public Optional<Lead> findById(UUID id) {
 		return leadRepository.findById(id);
 	}
 
-	public UserLead update(UUID id, UserLead lead) {
+	public Lead update(UUID id, Lead lead) {
 		lead.setId(id);
 		return leadRepository.save(lead);
 	}
