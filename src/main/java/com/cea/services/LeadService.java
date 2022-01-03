@@ -16,16 +16,16 @@ public class LeadService {
 
 	@Autowired
 	LeadRepository leadRepository;
-	
+
 	public Lead insert(Lead lead) {
 		// TODO: Alterar implementações para utilizar DTO
 		Date date = new Date();
-		
+
 		lead.setCreatedAt(date);
 		lead.setUpdatedAt(date);
-		
+
 		return leadRepository.save(lead);
-		
+
 	}
 
 	public List<Lead> findAll() {
@@ -40,5 +40,13 @@ public class LeadService {
 		lead.setId(id);
 		return leadRepository.save(lead);
 	}
-	
+
+	// checagem da não existência do cadastro para inserir o usuário
+	public Lead findByEmail(String email) {
+		return leadRepository.findByEmail(email);
+	}
+
+	public Lead findByPhone(String phone) {
+		return leadRepository.findByPhone(phone);
+	}
 }

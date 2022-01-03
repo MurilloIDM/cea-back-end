@@ -22,26 +22,33 @@ public class LeadController {
 
 	@Autowired
 	LeadService leadService;
-	
-	/*Create*/
+
+	/* Create */
 	@PostMapping("/")
 	public Lead insert(@RequestBody Lead lead) {
-		return this.leadService.insert(lead);
-	}
-	
-	/*Find All*/
+		
+		String phone = lead.getPhone();
+		String email = lead.getEmail();
+		
+		if (leadService.findByEmail(email) == null || leadService.findByPhone(phone) == null)
+			return this.leadService.insert(lead);
+
+		return lead;
+}
+
+	/* Find All */
 	@GetMapping("/")
-	public List<Lead> findAll(){
+	public List<Lead> findAll() {
 		return leadService.findAll();
 	}
-	
-	/*Find One*/
+
+	/* Find One */
 	@GetMapping("/{id}")
-	public Optional<Lead> findById(@PathVariable UUID id){
+	public Optional<Lead> findById(@PathVariable UUID id) {
 		return leadService.findById(id);
 	}
-	
-	/*Update*/
+
+	/* Update */
 	@PutMapping("/{id}")
 	public Lead update(@PathVariable UUID id, @RequestBody Lead lead) {
 		return leadService.update(id, lead);
