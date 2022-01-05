@@ -1,13 +1,16 @@
 package com.cea.models;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.UUID;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
 import lombok.AllArgsConstructor;
@@ -35,7 +38,7 @@ public class FreePost implements Serializable{
 	private String createdBy;
 	private String updatedBy;
 	
-	//@OneToMany
-	//private List<Historic_status> historic_status = new ArrayList<>();
+	@OneToMany
+	private List<HistoricStatusFreePost> historicStatusFreePost = new ArrayList<>();
 	
 }

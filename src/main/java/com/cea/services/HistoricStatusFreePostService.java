@@ -12,9 +12,6 @@ public class HistoricStatusFreePostService {
 	@Autowired
 	HistoricStatusFreePostRepository historicStatusFreePostRepository;
 
-	/*
-	 * @Autowired FreePostService freePostService;
-	 */
 	public HistoricStatusFreePost insert(HistoricStatusFreePost historicStatusFreePost) {
 
 		return historicStatusFreePostRepository.save(historicStatusFreePost);

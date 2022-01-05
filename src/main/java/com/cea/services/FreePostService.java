@@ -1,5 +1,6 @@
 package com.cea.services;
 
+import java.util.Date;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.UUID;
@@ -15,6 +16,7 @@ import org.springframework.web.client.HttpClientErrorException;
 
 import com.cea.dto.FreePostDTO;
 import com.cea.models.FreePost;
+import com.cea.models.HistoricStatusFreePost;
 import com.cea.repository.FreePostRepository;
 
 @Service
@@ -23,19 +25,39 @@ public class FreePostService {
 	@Autowired
 	FreePostRepository freePostRepository;
 
+	@Autowired
+	HistoricStatusFreePostService historicStatusFreePostService;
+
 	/* * * * *
 	 * INSERT
 	 * * * * */
 	public FreePost insert(FreePostDTO freePostDTO) {
+
 		FreePost freePost = freePostDTO.toEntity();
+		HistoricStatusFreePost historicStatusFreePost = new HistoricStatusFreePost();
+
+		updateHistoric(historicStatusFreePost, freePostDTO);
+
+		freePost.getHistoricStatusFreePost().add(historicStatusFreePost);
+
+		historicStatusFreePostService.insert(historicStatusFreePost);
+
 		return freePostRepository.save(freePost);
 	}
 
-	/* * * * *
+	/* * * * * 
 	 * UPDATE
 	 * * * * */
 	public FreePost update(UUID id, FreePostDTO freePostDTO) {
 		FreePost existingFreePost = findById(id);
+		
+
+		if (existingFreePost.getStatus() != freePostDTO.getStatus()) {
+			HistoricStatusFreePost historicStatusFreePost = new HistoricStatusFreePost();
+			updateHistoric(historicStatusFreePost, freePostDTO);
+			historicStatusFreePostService.insert(historicStatusFreePost);
+			existingFreePost.getHistoricStatusFreePost().add(historicStatusFreePost);
+		}
 
 		updateData(existingFreePost, freePostDTO);
 
@@ -74,8 +96,7 @@ public class FreePostService {
 		try {
 			freePostRepository.deleteById(id);
 		} catch (EmptyResultDataAccessException e) {
-			throw new HttpClientErrorException(HttpStatus.BAD_REQUEST,
-					"Registro não encontrado com ID informado!");
+			throw new HttpClientErrorException(HttpStatus.BAD_REQUEST, "Registro não encontrado com ID informado!");
 		} catch (DataIntegrityViolationException e) {
 			throw new HttpClientErrorException(HttpStatus.INTERNAL_SERVER_ERROR,
 					"Esse registro não pode ser deletado!");
@@ -91,6 +112,15 @@ public class FreePostService {
 		existingFreePost.setStatus(freePost.getStatus());
 		existingFreePost.setUpdatedAt(freePost.getUpdatedAt());
 		existingFreePost.setUpdatedBy(freePost.getUpdatedBy());
+	}
+
+	private void updateHistoric(HistoricStatusFreePost historicStatusFreePost, FreePostDTO freePostDTO) {
+		Date date = new Date();
+		
+		//historicStatusFreePost.setFreePostId(freePost.getId());
+		historicStatusFreePost.setStatus(freePostDTO.getStatus());
+		historicStatusFreePost.setUpdatedAt(date);
+		historicStatusFreePost.setUpdatedBy(freePostDTO.getUser());
 	}
 
 }
