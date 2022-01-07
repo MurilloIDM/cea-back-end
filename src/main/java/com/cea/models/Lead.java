@@ -31,8 +31,5 @@ public class Lead implements Serializable {
 	private String email;
 	private String phone;
 	private Date createdAt;
-	private Date updatedAt;
-	private String createdBy;
-	private String updatedBy;
 	
 }

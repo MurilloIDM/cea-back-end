@@ -1,13 +1,15 @@
 package com.cea.services;
 
-import java.util.Date;
 import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.HttpClientErrorException;
 
+import com.cea.dto.LeadDTO;
 import com.cea.models.Lead;
 import com.cea.repository.LeadRepository;
 
@@ -17,36 +19,36 @@ public class LeadService {
 	@Autowired
 	LeadRepository leadRepository;
 
-	public Lead insert(Lead lead) {
-		// TODO: Alterar implementações para utilizar DTO
-		Date date = new Date();
+	public Lead insert(LeadDTO leadDTO) {
 
-		lead.setCreatedAt(date);
-		lead.setUpdatedAt(date);
+		Lead lead = leadDTO.toEntity();
+		Lead checkEmail = this.leadRepository.findByEmail(leadDTO.getEmail());
+		Lead checkPhone = this.leadRepository.findByPhone(leadDTO.getPhone());
 
-		return leadRepository.save(lead);
-
+		if (checkEmail != null || checkPhone != null) {
+			throw new HttpClientErrorException(HttpStatus.BAD_REQUEST, "Email ou telefone já cadastrados");
+		} else
+			return this.leadRepository.save(lead);
 	}
 
+	public Page<Lead> findAllByPage(Pageable pageRequest) {
+		Page<Lead> leads = leadRepository.findAll(pageRequest);
+		return leads;
+	}
+	
 	public List<Lead> findAll() {
-		return leadRepository.findAll();
+		List<Lead> leads = this.leadRepository.findAll();
+		
+		return leads;
 	}
 
-	public Optional<Lead> findById(UUID id) {
-		return leadRepository.findById(id);
-	}
+	public void updateData(LeadDTO leadDTO) {
 
-	public Lead update(UUID id, Lead lead) {
-		lead.setId(id);
-		return leadRepository.save(lead);
-	}
+		Lead lead = leadDTO.toEntity();
+		lead.setName(lead.getName());
+		lead.setPhone(lead.getPhone());
+		lead.setEmail(lead.getEmail());
+		lead.setCreatedAt(lead.getCreatedAt());
 
-	// checagem da não existência do cadastro para inserir o usuário
-	public Lead findByEmail(String email) {
-		return leadRepository.findByEmail(email);
-	}
-
-	public Lead findByPhone(String phone) {
-		return leadRepository.findByPhone(phone);
 	}
 }

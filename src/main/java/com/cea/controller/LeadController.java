@@ -1,18 +1,23 @@
 package com.cea.controller;
 
+import java.net.URI;
 import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort.Direction;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
+import com.cea.dto.LeadDTO;
 import com.cea.models.Lead;
 import com.cea.services.LeadService;
 
@@ -25,32 +30,30 @@ public class LeadController {
 
 	/* Create */
 	@PostMapping("/")
-	public Lead insert(@RequestBody Lead lead) {
-		
-		String phone = lead.getPhone();
-		String email = lead.getEmail();
-		
-		if (leadService.findByEmail(email) == null || leadService.findByPhone(phone) == null)
-			return this.leadService.insert(lead);
+	public ResponseEntity<Lead> insert(@RequestBody LeadDTO leadDTO) {
+		Lead lead = this.leadService.insert(leadDTO);
+		URI uri = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}").buildAndExpand(lead.getId()).toUri();
 
-		return lead;
-}
+		return ResponseEntity.created(uri).body(null);
+	}
 
 	/* Find All */
+	@GetMapping("/all")
+	public ResponseEntity<List<Lead>> findAll() {
+		List<Lead> leads = this.leadService.findAll();
+		return ResponseEntity.ok().body(leads);
+	}
+
+	/* Find All by page */
 	@GetMapping("/")
-	public List<Lead> findAll() {
-		return leadService.findAll();
+	public ResponseEntity<Page<Lead>> findAllByPage(@RequestParam(value = "page", defaultValue = "0") Integer page,
+			@RequestParam(value = "linesPerPage", defaultValue = "10") Integer linesPerPage,
+			@RequestParam(value = "direction", defaultValue = "ASC") String direction,
+			@RequestParam(value = "orderBy", defaultValue = "createdAt") String orderBy)
+			{
+		Pageable pageRequest = PageRequest.of(page, linesPerPage, Direction.valueOf(direction), orderBy);
+		Page<Lead> leads = this.leadService.findAllByPage(pageRequest);
+		return ResponseEntity.ok().body(leads);
 	}
 
-	/* Find One */
-	@GetMapping("/{id}")
-	public Optional<Lead> findById(@PathVariable UUID id) {
-		return leadService.findById(id);
-	}
-
-	/* Update */
-	@PutMapping("/{id}")
-	public Lead update(@PathVariable UUID id, @RequestBody Lead lead) {
-		return leadService.update(id, lead);
-	}
 }
