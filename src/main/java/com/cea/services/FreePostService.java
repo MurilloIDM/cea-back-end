@@ -34,13 +34,6 @@ public class FreePostService {
 	public FreePost insert(FreePostDTO freePostDTO) {
 
 		FreePost freePost = freePostDTO.toEntity();
-		HistoricStatusFreePost historicStatusFreePost = new HistoricStatusFreePost();
-
-		updateHistoric(historicStatusFreePost, freePostDTO);
-
-		freePost.getHistoricStatusFreePost().add(historicStatusFreePost);
-
-		historicStatusFreePostService.insert(historicStatusFreePost);
 
 		return freePostRepository.save(freePost);
 	}
@@ -50,11 +43,11 @@ public class FreePostService {
 	 * * * * */
 	public FreePost update(UUID id, FreePostDTO freePostDTO) {
 		FreePost existingFreePost = findById(id);
-		
 
 		if (existingFreePost.getStatus() != freePostDTO.getStatus()) {
 			HistoricStatusFreePost historicStatusFreePost = new HistoricStatusFreePost();
-			updateHistoric(historicStatusFreePost, freePostDTO);
+			updateHistoricDTO(historicStatusFreePost, freePostDTO);
+			historicStatusFreePost.setFreePost(existingFreePost);
 			historicStatusFreePostService.insert(historicStatusFreePost);
 			existingFreePost.getHistoricStatusFreePost().add(historicStatusFreePost);
 		}
@@ -93,6 +86,11 @@ public class FreePostService {
 	 * DELETE
 	 * * * * */
 	public void delete(UUID id) {
+		FreePost freePost = findById(id);
+		for (HistoricStatusFreePost historic : freePost.getHistoricStatusFreePost()) {
+			historicStatusFreePostService.delete(historic.getId());
+		}
+
 		try {
 			freePostRepository.deleteById(id);
 		} catch (EmptyResultDataAccessException e) {
@@ -114,13 +112,21 @@ public class FreePostService {
 		existingFreePost.setUpdatedBy(freePost.getUpdatedBy());
 	}
 
-	private void updateHistoric(HistoricStatusFreePost historicStatusFreePost, FreePostDTO freePostDTO) {
+	private void updateHistoricDTO(HistoricStatusFreePost historicStatusFreePost, FreePostDTO freePostDTO) {
 		Date date = new Date();
-		
-		//historicStatusFreePost.setFreePostId(freePost.getId());
+
 		historicStatusFreePost.setStatus(freePostDTO.getStatus());
 		historicStatusFreePost.setUpdatedAt(date);
 		historicStatusFreePost.setUpdatedBy(freePostDTO.getUser());
+	}
+
+	public void updateHistoric(HistoricStatusFreePost historicStatusFreePost, FreePost freePost) {
+		Date date = new Date();
+
+		historicStatusFreePost.setFreePost(findById(freePost.getId()));
+		historicStatusFreePost.setStatus(freePost.getStatus());
+		historicStatusFreePost.setUpdatedAt(date);
+		historicStatusFreePost.setUpdatedBy(freePost.getUpdatedBy());
 	}
 
 }

@@ -8,7 +8,10 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.persistence.ManyToOne;
 import javax.persistence.Table;
+
+import com.fasterxml.jackson.annotation.JsonBackReference;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -27,8 +30,11 @@ public class HistoricStatusFreePost implements Serializable {
 	@GeneratedValue
 	@Column(name = "id", columnDefinition = "BINARY(16)")
 	private UUID id;
-	//private UUID freePostId;
 	private Boolean status;
 	private Date updatedAt;
 	private String updatedBy;
+
+	@JsonBackReference
+	@ManyToOne
+	private FreePost freePost;
 }

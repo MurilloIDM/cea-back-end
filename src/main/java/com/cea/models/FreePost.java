@@ -13,6 +13,8 @@ import javax.persistence.Id;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -21,11 +23,11 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@Table(name="tb_freePost")
-public class FreePost implements Serializable{
+@Table(name = "tb_freePost")
+public class FreePost implements Serializable {
 
 	private static final long serialVersionUID = 1L;
-	
+
 	@Id
 	@GeneratedValue
 	@Column(name = "id", columnDefinition = "BINARY(16)")
@@ -37,8 +39,9 @@ public class FreePost implements Serializable{
 	private Date updatedAt;
 	private String createdBy;
 	private String updatedBy;
-	
-	@OneToMany
+
+	@JsonManagedReference
+	@OneToMany(mappedBy = "freePost")
 	private List<HistoricStatusFreePost> historicStatusFreePost = new ArrayList<>();
-	
+
 }
