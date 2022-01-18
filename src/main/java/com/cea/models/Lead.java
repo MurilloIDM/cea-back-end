@@ -8,6 +8,7 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.persistence.Table;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -17,6 +18,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
+@Table(name = "tb_lead")
 public class Lead implements Serializable {
 
 	private static final long serialVersionUID = 1L;
@@ -29,8 +31,5 @@ public class Lead implements Serializable {
 	private String email;
 	private String phone;
 	private Date createdAt;
-	private Date updatedAt;
-	private String createdBy;
-	private String updatedBy;
 	
 }
