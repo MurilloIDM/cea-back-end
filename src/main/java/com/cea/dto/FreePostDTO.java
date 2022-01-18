@@ -19,14 +19,12 @@ public class FreePostDTO implements Serializable {
 	private String title;
 	private String description;
 	private Boolean status;
-	private Date createdAt;
-	private Date updatedAt;
 	private String user;
 
 	public FreePost toEntity() {
 
 		FreePost freePost = new FreePost();
-		
+
 		Date date = new Date();
 
 		freePost.setTitle(title);
