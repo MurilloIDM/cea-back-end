@@ -42,13 +42,4 @@ public class LeadService {
 		return leads;
 	}
 
-	public void updateData(LeadDTO leadDTO) {
-
-		Lead lead = leadDTO.toEntity();
-		lead.setName(lead.getName());
-		lead.setPhone(lead.getPhone());
-		lead.setEmail(lead.getEmail());
-		lead.setCreatedAt(lead.getCreatedAt());
-
-	}
 }
