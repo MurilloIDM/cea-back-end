@@ -1,7 +1,9 @@
 package com.cea.services;
 
 import java.util.List;
+import java.util.UUID;
 
+import org.hibernate.type.BinaryType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -40,6 +42,17 @@ public class LeadService {
 		List<Lead> leads = this.leadRepository.findAll();
 		
 		return leads;
+	}
+
+	public boolean findByDeviceId(UUID deviceId) {
+		System.out.println(deviceId);
+		Lead lead = leadRepository.findByDeviceId(deviceId);
+	
+			if (lead.getDeviceId() == null) {
+				return false;	
+		}
+			
+		return true;
 	}
 
 }

@@ -33,7 +33,9 @@ public class FreePost implements Serializable {
 	@Column(name = "id", columnDefinition = "BINARY(16)")
 	private UUID id;
 	private String title;
+	@Column(columnDefinition = "TEXT")
 	private String description;
+	private String imageUrl;
 	private Boolean status;
 	private Date createdAt;
 	private Date updatedAt;

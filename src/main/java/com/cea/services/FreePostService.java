@@ -107,6 +107,7 @@ public class FreePostService {
 
 		existingFreePost.setTitle(freePost.getTitle());
 		existingFreePost.setDescription(freePost.getDescription());
+		existingFreePost.setImageUrl(freePost.getImageUrl());
 		existingFreePost.setStatus(freePost.getStatus());
 		existingFreePost.setUpdatedAt(freePost.getUpdatedAt());
 		existingFreePost.setUpdatedBy(freePost.getUpdatedBy());

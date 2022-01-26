@@ -18,6 +18,7 @@ public class FreePostDTO implements Serializable {
 
 	private String title;
 	private String description;
+	private String imageUrl;
 	private Boolean status;
 	private String user;
 
@@ -29,6 +30,7 @@ public class FreePostDTO implements Serializable {
 
 		freePost.setTitle(title);
 		freePost.setDescription(description);
+		freePost.setImageUrl(imageUrl);
 		freePost.setStatus(status);
 		freePost.setCreatedAt(date);
 		freePost.setUpdatedAt(date);

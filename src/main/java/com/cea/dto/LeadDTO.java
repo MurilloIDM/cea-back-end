@@ -2,6 +2,7 @@ package com.cea.dto;
 
 import java.io.Serializable;
 import java.util.Date;
+import java.util.UUID;
 
 import com.cea.models.Lead;
 
@@ -19,6 +20,7 @@ public class LeadDTO implements Serializable {
 	private String name;
 	private String email;
 	private String phone;
+	private UUID deviceId;
 
 	public Lead toEntity() {
 
@@ -30,6 +32,7 @@ public class LeadDTO implements Serializable {
 		lead.setEmail(this.email);
 		lead.setPhone(this.phone);
 		lead.setCreatedAt(date);
+		lead.setDeviceId(deviceId);
 
 		return lead;
 

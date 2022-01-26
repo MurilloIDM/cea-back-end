@@ -31,5 +31,6 @@ public class Lead implements Serializable {
 	private String email;
 	private String phone;
 	private Date createdAt;
-	
+	@Column(name = "deviceId", columnDefinition = "BINARY(16)")
+	private UUID deviceId;
 }
