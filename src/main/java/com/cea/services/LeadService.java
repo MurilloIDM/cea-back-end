@@ -47,9 +47,13 @@ public class LeadService {
 	public boolean findByDeviceId(UUID deviceId) {
 		System.out.println(deviceId);
 		Lead lead = leadRepository.findByDeviceId(deviceId);
+		
+		if (lead == null) {
+			return false;
+		}
 	
-			if (lead.getDeviceId() == null) {
-				return false;	
+		if (lead.getDeviceId() == null) {
+			return false;	
 		}
 			
 		return true;
