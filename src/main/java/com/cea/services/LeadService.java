@@ -26,6 +26,13 @@ public class LeadService {
 		Lead lead = leadDTO.toEntity();
 		Lead checkEmail = this.leadRepository.findByEmail(leadDTO.getEmail());
 		Lead checkPhone = this.leadRepository.findByPhone(leadDTO.getPhone());
+		Lead checkDeviceId = this.leadRepository.findByDeviceId(leadDTO.getDeviceId());
+		
+		if (checkEmail != null && checkPhone != null && checkDeviceId == null) {
+			Lead leadUpdated = this.leadRepository.getById(checkEmail.getId());
+			leadUpdated.setDeviceId(leadDTO.getDeviceId());
+			return this.leadRepository.save(leadUpdated);
+		}
 
 		if (checkEmail != null || checkPhone != null) {
 			throw new HttpClientErrorException(HttpStatus.BAD_REQUEST, "Email ou telefone já cadastrados");
