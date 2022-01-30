@@ -13,7 +13,7 @@ import javax.persistence.Id;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
-import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -42,7 +42,7 @@ public class FreePost implements Serializable {
 	private String createdBy;
 	private String updatedBy;
 
-	@JsonManagedReference
+	@JsonIgnore
 	@OneToMany(mappedBy = "freePost")
 	private List<HistoricStatusFreePost> historicStatusFreePost = new ArrayList<>();
 
