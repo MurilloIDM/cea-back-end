@@ -3,8 +3,6 @@ package com.cea.dto;
 import java.io.Serializable;
 import java.util.Date;
 
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-
 import com.cea.models.Administrator;
 
 import lombok.AllArgsConstructor;
@@ -20,13 +18,9 @@ public class AdministratorDTO implements Serializable {
 	
 	private String name;
 	private String username;
-	private String password;
 	private String user;
 	
 	public Administrator toEntity() {
-		BCryptPasswordEncoder bCrypt = new BCryptPasswordEncoder();
-		String passwordHash = bCrypt.encode(this.password);
-		
 		Date date = new Date();
 		
 		String usernameLowerCase = this.username != null ? this.username.toLowerCase() : "";
@@ -39,7 +33,7 @@ public class AdministratorDTO implements Serializable {
 		administrator.setUpdatedAt(date);
 		administrator.setCreatedBy(this.user);
 		administrator.setUpdatedBy(this.user);
-		administrator.setPassword(passwordHash);
+		administrator.setIsPrimaryAccess(true);
 		administrator.setUsername(usernameLowerCase);
 		
 		return administrator;

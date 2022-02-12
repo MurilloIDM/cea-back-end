@@ -2,6 +2,7 @@ package com.cea.services;
 
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.Random;
 import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,10 +11,12 @@ import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.HttpClientErrorException;
 
 import com.cea.dto.AdministratorDTO;
+import com.cea.dto.AdministratorResponseDTO;
 import com.cea.models.Administrator;
 import com.cea.repository.AdministratorRepository;
 
@@ -23,7 +26,7 @@ public class AdministratorService {
 	@Autowired
 	private AdministratorRepository administratorRepository;
 	
-	public Administrator insert(AdministratorDTO administratorDTO) {		
+	public AdministratorResponseDTO insert(AdministratorDTO administratorDTO) {		
 		Administrator administrator = administratorDTO.toEntity();
 		
 		Administrator administratorAlreadyExists = this
@@ -37,7 +40,22 @@ public class AdministratorService {
 			);
 		}
 		
-		return this.administratorRepository.save(administrator);
+		String password = this.generatePassword();
+		
+		BCryptPasswordEncoder bCrypt = new BCryptPasswordEncoder();
+		String passwordHash = bCrypt.encode(password);
+		
+		administrator.setPassword(passwordHash);
+		
+		Administrator resultInsert = this.administratorRepository.save(administrator);
+		
+		AdministratorResponseDTO response = new AdministratorResponseDTO(
+			resultInsert.getId(),
+			resultInsert.getUsername(),
+			password
+		);
+		
+		return response;
 	}
 	
 	public Administrator update(UUID id, AdministratorDTO administratorDTO) {
@@ -112,6 +130,27 @@ public class AdministratorService {
 			);
 		}
 	}
+	
+	private String generatePassword() {
+		String[] CHARS = {
+          "a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r",
+          "s", "t", "u", "v", "w", "x", "y", "z", "A", "B", "C", "D", "E", "F", "G", "H", "I", "J",
+          "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z", "1", "2",
+          "3", "4", "5", "6", "7", "8", "9"
+		};
+		
+		Random random = new Random();
+		StringBuilder passwordSalt = new StringBuilder();
+		
+		while (passwordSalt.length() < 16) {
+			Integer position = (int) (random.nextFloat() * CHARS.length);
+			passwordSalt.append(CHARS[position]);
+		}
+		
+		String password = passwordSalt.toString();
+		return password;
+	}
+	
 	
 	private void updateData(
 		Administrator administratorAlreadyExists,

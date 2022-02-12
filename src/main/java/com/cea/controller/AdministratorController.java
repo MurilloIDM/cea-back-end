@@ -22,6 +22,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import com.cea.dto.AdministratorDTO;
+import com.cea.dto.AdministratorResponseDTO;
 import com.cea.models.Administrator;
 import com.cea.services.AdministratorService;
 
@@ -33,14 +34,14 @@ public class AdministratorController {
 	private AdministratorService administratorService;
 	
 	@PostMapping("/")
-	public ResponseEntity<Administrator> insert(@RequestBody AdministratorDTO administratorDTO) {
-		Administrator administrator = this.administratorService.insert(administratorDTO);
+	public ResponseEntity<AdministratorResponseDTO> insert(@RequestBody AdministratorDTO administratorDTO) {
+		AdministratorResponseDTO administrator = this.administratorService.insert(administratorDTO);
 		
 		URI uri = ServletUriComponentsBuilder
 				.fromCurrentRequest().path("/{id}")
 				.buildAndExpand(administrator.getId()).toUri();
 		
-		return ResponseEntity.created(uri).body(null);
+		return ResponseEntity.created(uri).body(administrator);
 	}
 	
 	@PutMapping("/{id}")
