@@ -37,6 +37,8 @@ public class Administrator implements Serializable {
 	
 	private Boolean roles;
 	
+	private Boolean isPrimaryAccess;
+	
 	private Date createdAt;
 	
 	private Date updatedAt;
