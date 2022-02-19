@@ -36,7 +36,7 @@ public class AdministratorService {
 		if (administratorAlreadyExists != null) {
 			throw new HttpClientErrorException(
 				HttpStatus.BAD_REQUEST,
-				"Já existe um registro com esse username!"
+				"Já existe um registro com esse nome de acesso!"
 			);
 		}
 		
