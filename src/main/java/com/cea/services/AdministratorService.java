@@ -63,18 +63,23 @@ public class AdministratorService {
 		
 		updateData(administratorAlreadyExists, administratorDTO);
 		
+		System.out.println(administratorAlreadyExists.getUsername());
+		
 		Administrator administratorAlreadyExistsUsername = this
 				.administratorRepository
 				.findByUsername(administratorAlreadyExists.getUsername());
 		
 		Boolean administratorExistsWithUsername = administratorAlreadyExistsUsername != null;
 		
+		
 		if (administratorExistsWithUsername) {
-			Boolean isNotEqualsId = administratorAlreadyExistsUsername.getId() != id;
-			if (isNotEqualsId) {
+			System.out.println("id user existente " + administratorAlreadyExistsUsername.getId());
+			System.out.println("id user " + id);
+			Boolean equalsId = administratorAlreadyExistsUsername.getId() == id;
+			if (!equalsId) {
 				throw new HttpClientErrorException(
 					HttpStatus.BAD_REQUEST,
-					"Já existe um registro com esse username!"
+					"Já existe um registro com esse nome de acesso."
 				);
 			}
 		}
