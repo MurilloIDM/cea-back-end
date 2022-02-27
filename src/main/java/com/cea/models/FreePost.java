@@ -8,6 +8,7 @@ import java.util.UUID;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
@@ -43,7 +44,7 @@ public class FreePost implements Serializable {
 	private String updatedBy;
 
 	@JsonIgnore
-	@OneToMany(mappedBy = "freePost")
+	@OneToMany(fetch = FetchType.EAGER, mappedBy = "freePost")
 	private List<HistoricStatusFreePost> historicStatusFreePost = new ArrayList<>();
 
 }

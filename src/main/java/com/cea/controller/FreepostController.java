@@ -62,14 +62,15 @@ public class FreepostController {
 	}
 
 	@GetMapping("/")
-	public ResponseEntity<Page<FreePost>> findAll(@RequestParam(value = "page", defaultValue = "0") Integer page,
+	public ResponseEntity<Page<FreePost>> findAllPaged(@RequestParam(value = "page", defaultValue = "0") Integer page,
 			@RequestParam(value = "linesPerPage", defaultValue = "10") Integer linesPerPage,
 			@RequestParam(value = "direction", defaultValue = "ASC") String direction,
 			@RequestParam(value = "orderBy", defaultValue = "createdAt") String orderBy,
-			@RequestParam(value = "title", defaultValue = "") String title) {
+			@RequestParam(value = "title", defaultValue = "") String title,
+			@RequestParam(value = "status", defaultValue = "") String status){
 		Pageable pageRequest = PageRequest.of(page, linesPerPage, Direction.valueOf(direction), orderBy);
 
-		Page<FreePost> freePosts = freePostService.findAllByPage(title, pageRequest);
+		Page<FreePost> freePosts = freePostService.findAllPaged(title, status, pageRequest);
 
 		return ResponseEntity.ok().body(freePosts);
 	}
