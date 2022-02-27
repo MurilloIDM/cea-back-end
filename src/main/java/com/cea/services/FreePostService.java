@@ -79,7 +79,7 @@ public class FreePostService {
 	}
 
 	public List<FreePost> findAll() {
-		return freePostRepository.findAll();
+		return freePostRepository.findByStatusTrue();
 	}
 
 	/* * * * *
