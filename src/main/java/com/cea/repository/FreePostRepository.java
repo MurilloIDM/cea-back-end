@@ -13,5 +13,7 @@ public interface FreePostRepository extends JpaRepository<FreePost, UUID> {
 
 	Page<FreePost> findByTitleContaining(String title, Pageable pageRequest);
 	List<FreePost> findByStatusTrue();
+	Page<FreePost> findByTitleContainingAndStatusIs(String title, Boolean status, Pageable pageRequest);
+	Page<FreePost> findByStatusIs(Boolean status, Pageable pageRequest);
 
 }

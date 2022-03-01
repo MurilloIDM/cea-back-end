@@ -72,9 +72,20 @@ public class FreePostService {
 	 * FINDALL
 	 * * * * */
 
-	public Page<FreePost> findAllByPage(String title, Pageable pageRequest) {
-		if (!title.equals(""))
+	public Page<FreePost> findAllPaged(String title, String status, Pageable pageRequest) {
+		if (!title.equals("") && (status.equals("") || status.equals("all")))
 			return freePostRepository.findByTitleContaining(title, pageRequest);
+
+		if (!status.equals("") && !status.equals("all") && title.equals("")) {
+			Boolean statusBoolean = status.equals("online") ? true : false;
+			return freePostRepository.findByStatusIs(statusBoolean, pageRequest);
+		}
+
+		if (!status.equals("") && !status.equals("all") && !title.equals("")) {
+			Boolean statusBoolean = status.equals("online") ? true : false;
+			return freePostRepository.findByTitleContainingAndStatusIs(title, statusBoolean, pageRequest);
+		}
+
 		return freePostRepository.findAll(pageRequest);
 	}
 
