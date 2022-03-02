@@ -10,5 +10,4 @@ public interface LeadRepository extends JpaRepository<Lead, UUID> {
 	
 	Lead findByEmail(String email);
 	Lead findByPhone(String phone);
-	Lead findByDeviceId(UUID deviceId);
 }
