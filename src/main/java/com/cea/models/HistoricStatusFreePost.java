@@ -28,7 +28,7 @@ public class HistoricStatusFreePost implements Serializable {
 
 	@Id
 	@GeneratedValue
-	@Column(name = "id", columnDefinition = "BINARY(16)")
+	@Column(name = "id")
 	private UUID id;
 	private Boolean status;
 	private Date updatedAt;

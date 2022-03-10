@@ -31,7 +31,7 @@ public class FreePost implements Serializable {
 
 	@Id
 	@GeneratedValue
-	@Column(name = "id", columnDefinition = "BINARY(16)")
+	@Column(name = "id")
 	private UUID id;
 	private String title;
 	@Column(columnDefinition = "TEXT")
