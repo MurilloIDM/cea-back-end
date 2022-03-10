@@ -25,12 +25,12 @@ public class Lead implements Serializable {
 
 	@Id
 	@GeneratedValue
-	@Column(name = "id", columnDefinition = "BINARY(16)")
+	@Column(name = "id")
 	private UUID id;
 	private String name;
 	private String email;
 	private String phone;
 	private Date createdAt;
-	@Column(name = "deviceId", columnDefinition = "BINARY(16)")
+	@Column(name = "deviceId")
 	private UUID deviceId;
 }
