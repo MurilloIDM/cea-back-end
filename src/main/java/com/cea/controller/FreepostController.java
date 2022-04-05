@@ -4,6 +4,7 @@ import java.net.URI;
 import java.util.List;
 import java.util.UUID;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -29,13 +30,11 @@ import com.cea.services.HistoricStatusFreePostService;
 
 @RestController
 @RequestMapping("/freeposts")
+@RequiredArgsConstructor
 public class FreepostController {
 
-	@Autowired
-	FreePostService freePostService;
-
-	@Autowired
-	HistoricStatusFreePostService historicStatusFreePostService;
+	private final FreePostService freePostService;
+	private final HistoricStatusFreePostService historicStatusFreePostService;
 
 	@PostMapping("/")
 	public ResponseEntity<FreePost> insert(@RequestBody FreePostDTO freepostDTO) {

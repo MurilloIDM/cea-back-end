@@ -5,6 +5,7 @@ import java.util.NoSuchElementException;
 import java.util.Random;
 import java.util.UUID;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.EmptyResultDataAccessException;
@@ -21,10 +22,10 @@ import com.cea.models.Administrator;
 import com.cea.repository.AdministratorRepository;
 
 @Service
+@RequiredArgsConstructor
 public class AdministratorService {
 
-	@Autowired
-	private AdministratorRepository administratorRepository;
+	private final AdministratorRepository administratorRepository;
 	
 	public AdministratorResponseDTO insert(AdministratorDTO administratorDTO) {		
 		Administrator administrator = administratorDTO.toEntity();
