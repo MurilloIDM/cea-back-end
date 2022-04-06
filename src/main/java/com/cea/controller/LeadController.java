@@ -4,6 +4,7 @@ import java.net.URI;
 import java.util.List;
 import java.util.UUID;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -25,12 +26,11 @@ import com.cea.services.LeadService;
 
 @RestController
 @RequestMapping("/leads")
+@RequiredArgsConstructor
 public class LeadController {
 
-	@Autowired
-	LeadService leadService;
+	private final LeadService leadService;
 
-	/* Create */
 	@PostMapping("/")
 	public ResponseEntity<Lead> insert(@RequestBody LeadDTO leadDTO) {
 		Lead lead = this.leadService.insert(leadDTO);
@@ -39,14 +39,12 @@ public class LeadController {
 		return ResponseEntity.created(uri).body(null);
 	}
 
-	/* Find All */
 	@GetMapping("/all")
 	public ResponseEntity<List<Lead>> findAll() {
 		List<Lead> leads = this.leadService.findAll();
 		return ResponseEntity.ok().body(leads);
 	}
 
-	/* Find All by page */
 	@GetMapping("/")
 	public ResponseEntity<Page<Lead>> findAllByPage(@RequestParam(value = "page", defaultValue = "0") Integer page,
 			@RequestParam(value = "linesPerPage", defaultValue = "10") Integer linesPerPage,
@@ -57,7 +55,7 @@ public class LeadController {
 		Page<Lead> leads = this.leadService.findAllByPage(pageRequest);
 		return ResponseEntity.ok().body(leads);
 	}
-	/*check deviceId*/
+
 	@GetMapping("/{deviceId}")
 	public boolean findByDeviceId (@PathVariable UUID deviceId){
 		boolean leadExist = leadService.findByDeviceId(deviceId);

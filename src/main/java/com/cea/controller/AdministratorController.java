@@ -4,6 +4,7 @@ import java.net.URI;
 import java.util.List;
 import java.util.UUID;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -28,10 +29,10 @@ import com.cea.services.AdministratorService;
 
 @RestController
 @RequestMapping("/administrators")
+@RequiredArgsConstructor
 public class AdministratorController {
-	
-	@Autowired
-	private AdministratorService administratorService;
+
+	private final AdministratorService administratorService;
 	
 	@PostMapping("/")
 	public ResponseEntity<AdministratorResponseDTO> insert(@RequestBody AdministratorDTO administratorDTO) {

@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.UUID;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.EmptyResultDataAccessException;
@@ -20,17 +21,12 @@ import com.cea.models.HistoricStatusFreePost;
 import com.cea.repository.FreePostRepository;
 
 @Service
+@RequiredArgsConstructor
 public class FreePostService {
+	
+	private final FreePostRepository freePostRepository;
+	private final HistoricStatusFreePostService historicStatusFreePostService;
 
-	@Autowired
-	FreePostRepository freePostRepository;
-
-	@Autowired
-	HistoricStatusFreePostService historicStatusFreePostService;
-
-	/* * * * *
-	 * INSERT
-	 * * * * */
 	public FreePost insert(FreePostDTO freePostDTO) {
 
 		FreePost freePost = freePostDTO.toEntity();
@@ -38,9 +34,6 @@ public class FreePostService {
 		return freePostRepository.save(freePost);
 	}
 
-	/* * * * * 
-	 * UPDATE
-	 * * * * */
 	public FreePost update(UUID id, FreePostDTO freePostDTO) {
 		FreePost existingFreePost = findById(id);
 
@@ -57,9 +50,6 @@ public class FreePostService {
 		return freePostRepository.save(existingFreePost);
 	}
 
-	/* * * * *
-	 * FINDONE
-	 * * * * */
 	public FreePost findById(UUID id) {
 		try {
 			return freePostRepository.findById(id).get();
@@ -67,10 +57,6 @@ public class FreePostService {
 			throw new HttpClientErrorException(HttpStatus.BAD_REQUEST, "Registro não encontrado com ID informado!");
 		}
 	}
-
-	/* * * * *
-	 * FINDALL
-	 * * * * */
 
 	public Page<FreePost> findAllPaged(String title, String status, Pageable pageRequest) {
 		if (!title.equals("") && (status.equals("") || status.equals("all")))
@@ -93,9 +79,6 @@ public class FreePostService {
 		return freePostRepository.findByStatusTrue();
 	}
 
-	/* * * * *
-	 * DELETE
-	 * * * * */
 	public void delete(UUID id) {
 		FreePost freePost = findById(id);
 		for (HistoricStatusFreePost historic : freePost.getHistoricStatusFreePost()) {
@@ -112,7 +95,6 @@ public class FreePostService {
 		}
 	}
 
-	/******************************************************************************/
 	private void updateData(FreePost existingFreePost, FreePostDTO freePostDTO) {
 		FreePost freePost = freePostDTO.toEntity();
 
