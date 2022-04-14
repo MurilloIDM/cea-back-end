@@ -4,7 +4,6 @@ import java.util.List;
 import java.util.UUID;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -40,14 +39,12 @@ public class LeadService {
 	}
 
 	public Page<Lead> findAllByPage(Pageable pageRequest) {
-		Page<Lead> leads = leadRepository.findAll(pageRequest);
-		return leads;
+		return leadRepository.findAll(pageRequest);
 	}
 	
 	public List<Lead> findAll() {
-		List<Lead> leads = this.leadRepository.findAll();
-		
-		return leads;
+
+		return this.leadRepository.findAll();
 	}
 
 	public boolean findByDeviceId(UUID deviceId) {
@@ -56,12 +53,8 @@ public class LeadService {
 		if (lead == null) {
 			return false;
 		}
-	
-		if (lead.getDeviceId() == null) {
-			return false;	
-		}
-			
-		return true;
+
+		return lead.getDeviceId() != null;
 	}
 
 }

@@ -5,7 +5,6 @@ import java.util.List;
 import java.util.UUID;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -58,8 +57,7 @@ public class LeadController {
 
 	@GetMapping("/{deviceId}")
 	public boolean findByDeviceId (@PathVariable UUID deviceId){
-		boolean leadExist = leadService.findByDeviceId(deviceId);
-		return leadExist;
+		return leadService.findByDeviceId(deviceId);
 	}
 
 }

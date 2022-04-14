@@ -6,7 +6,6 @@ import java.util.Random;
 import java.util.UUID;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.data.domain.Page;
@@ -49,14 +48,12 @@ public class AdministratorService {
 		administrator.setPassword(passwordHash);
 		
 		Administrator resultInsert = this.administratorRepository.save(administrator);
-		
-		AdministratorResponseDTO response = new AdministratorResponseDTO(
+
+		return new AdministratorResponseDTO(
 			resultInsert.getId(),
 			resultInsert.getUsername(),
 			password
 		);
-		
-		return response;
 	}
 	
 	public Administrator update(UUID id, AdministratorDTO administratorDTO) {
@@ -68,10 +65,10 @@ public class AdministratorService {
 				.administratorRepository
 				.findByUsername(administratorAlreadyExists.getUsername());
 		
-		Boolean administratorExistsWithUsername = administratorAlreadyExistsUsername != null;
+		boolean administratorExistsWithUsername = administratorAlreadyExistsUsername != null;
 		
 		if (administratorExistsWithUsername) {
-			Boolean equalsId = administratorAlreadyExistsUsername.getId().equals(id);
+			boolean equalsId = administratorAlreadyExistsUsername.getId().equals(id);
 			
 			if (!equalsId) {
 				throw new HttpClientErrorException(
@@ -80,16 +77,13 @@ public class AdministratorService {
 				);
 			}
 		}
-		
-		Administrator administrator = this.administratorRepository.save(administratorAlreadyExists);
-		
-		return administrator;
+
+		return this.administratorRepository.save(administratorAlreadyExists);
 	}
 	
 	public Administrator findById(UUID id) {
 		try {
-			Administrator administrator = this.administratorRepository.findById(id).get();			
-			return administrator;
+			return this.administratorRepository.findById(id).get();
 		} catch (NoSuchElementException e) {
 			throw new HttpClientErrorException(
 				HttpStatus.BAD_REQUEST,
@@ -100,21 +94,17 @@ public class AdministratorService {
 	
 	public Page<Administrator> findAllByPage(String name, Pageable pageRequest) {
 		if (!name.equals("")) {
-			Page<Administrator> administrators = this.administratorRepository
+
+			return this.administratorRepository
 			.findByNameContaining(name, pageRequest);
-			
-			return administrators;
 		}
-		
-		Page<Administrator> administrators = this.administratorRepository.findAll(pageRequest);
-		
-		return administrators;
+
+		return this.administratorRepository.findAll(pageRequest);
 	}
 	
 	public List<Administrator> findAll() {
-		List<Administrator> administrators = this.administratorRepository.findAll();
-		
-		return administrators;
+
+		return this.administratorRepository.findAll();
 	}
 	
 	public void delete(UUID id) {
@@ -145,12 +135,11 @@ public class AdministratorService {
 		StringBuilder passwordSalt = new StringBuilder();
 		
 		while (passwordSalt.length() < 16) {
-			Integer position = (int) (random.nextFloat() * CHARS.length);
+			int position = (int) (random.nextFloat() * CHARS.length);
 			passwordSalt.append(CHARS[position]);
 		}
-		
-		String password = passwordSalt.toString();
-		return password;
+
+		return passwordSalt.toString();
 	}
 	
 	

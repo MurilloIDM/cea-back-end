@@ -1,0 +1,43 @@
+{
+  "properties": [
+    {
+      "name": "sendgrid.email.templateId",
+      "type": "java.lang.String",
+      "description": "Description for sendgrid.email.templateId."
+    },
+    {
+      "name": "sendgrid.email.from",
+      "type": "java.lang.String",
+      "description": "Description for sendgrid.email.from."
+    },
+    {
+      "name": "sendgrid.apikey",
+      "type": "java.lang.String",
+      "description": "Description for sendgrid.apikey."
+    },
+    {
+      "name": "externalPlatform.contentid",
+      "type": "java.lang.String",
+      "description": "Description for externalPlatform.contentid."
+    },
+    {
+      "name": "externalPlatform.publickey",
+      "type": "java.lang.String",
+      "description": "Description for externalPlatform.publickey."
+    },
+    {
+      "name": "externalPlatform.apikey",
+      "type": "java.lang.String",
+      "description": "Description for externalPlatform.apikey."
+    },
+    {
+      "name": "externalPlatform.email",
+      "type": "java.lang.String",
+      "description": "Description for externalPlatform.email."
+    },
+    {
+      "name": "externalPlatform.url",
+      "type": "java.lang.String",
+      "description": "Description for externalPlatform.url."
+    }
+  ] }
