@@ -25,4 +25,7 @@ public class LocalDateTimeUtils {
         return newDateTime;
     }
 
+    public boolean validateDateTime(LocalDateTime date, LocalDateTime dateNow) {
+        return dateNow.isBefore(date);
+    }
 }

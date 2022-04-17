@@ -3,6 +3,8 @@ package com.cea.services;
 import com.cea.dto.IsStudentDTO;
 import com.cea.dto.externalPlatform.ResponseDataClientDTO;
 import com.cea.dto.externalPlatform.StudentInPlatformDTO;
+import com.cea.dto.resetPassword.ResponseValidateTokenDTO;
+import com.cea.dto.resetPassword.ValidateTokenDTO;
 import com.cea.models.Lead;
 import com.cea.models.Student;
 import com.cea.models.StudentTokens;
@@ -19,6 +21,7 @@ import org.springframework.web.client.HttpClientErrorException;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -135,6 +138,36 @@ public class StudentService {
         } catch (IOException e) {
             throw new HttpClientErrorException(HttpStatus.BAD_REQUEST, "Falha ao enviar e-mail!");
         }
+    }
+
+    public ResponseValidateTokenDTO validateTokenForPasswordReset(ValidateTokenDTO payload) {
+        String token = payload.getToken();
+        String email = payload.getEmail();
+
+        Optional<Student> student = Optional.ofNullable(this.studentRepository.findByEmail(email));
+
+        if (student.isEmpty()) {
+            throw new HttpClientErrorException(HttpStatus.BAD_REQUEST, "Estudante não encontrado!");
+        }
+
+        List<StudentTokens> studentTokens = this.studentTokensRepository
+                .findDistinctByTokenAndStudentOrderByExpiresDateDesc(token, student.get());
+
+        if (studentTokens.size() == 0) {
+            throw new HttpClientErrorException(HttpStatus.BAD_REQUEST, "Token inválido!");
+        }
+
+        StudentTokens studentToken = studentTokens.get(0);
+        LocalDateTime expiresDate = studentToken.getExpiresDate();
+
+        LocalDateTime dateNow = localDateTimeUtils.dateNow();
+        boolean isExpires = localDateTimeUtils.validateDateTime(expiresDate, dateNow);
+
+        if (!isExpires) {
+            throw new HttpClientErrorException(HttpStatus.BAD_REQUEST, "Token expirado!");
+        }
+
+        return new ResponseValidateTokenDTO(true);
     }
 
 }
