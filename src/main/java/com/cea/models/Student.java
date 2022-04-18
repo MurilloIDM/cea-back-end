@@ -1,5 +1,6 @@
 package com.cea.models;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -9,13 +10,9 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.Table;
 import java.io.Serializable;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.TimeZone;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.UUID;
 
 @Data
@@ -32,37 +29,22 @@ public class Student implements Serializable {
     private UUID id;
     private String name;
     private String socialName;
+    @JsonIgnore
     private String password;
     private String email;
     private String phoneNumber;
-    private Date expirationDate;
-    private Date updatedAt;
+    private LocalDateTime expirationDate;
+    private LocalDateTime updatedAt;
 
-    public static Date getExpirationDate(String datePaymentStr) {
-        Date dateNow = null;
-        Date datePayment = null;
+    public static LocalDateTime getExpirationDate(String datePaymentStr, LocalDateTime dateNow) {
+        String TIME_ZONE = "America/Sao_Paulo";
 
-        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
-        dateFormat.setTimeZone(TimeZone.getTimeZone("America/Sao_Paulo"));
+        DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSS");
+        LocalDateTime datePayment = LocalDateTime.parse(datePaymentStr, dateFormatter);
 
-        try {
-            Date datePaymentParse = dateFormat.parse(datePaymentStr);
-            String datePaymentFormat = dateFormat.format(datePaymentParse);
-            datePayment = dateFormat.parse(datePaymentFormat);
-
-            String dateNowFormat = dateFormat.format(new Date());
-            dateNow = dateFormat.parse(dateNowFormat);
-        } catch (ParseException error) {
-            return null;
-        }
-
-        Date expirationDate = null;
+        LocalDateTime expirationDate = null;
         if (datePayment != null && dateNow != null) {
-            Calendar calendar = Calendar.getInstance();
-            calendar.setTime(datePayment);
-            calendar.add(Calendar.YEAR, 1);
-
-            expirationDate = calendar.getTime();
+            expirationDate = LocalDateTime.from(datePayment.plusYears(1).atZone(ZoneId.of(TIME_ZONE)));
 
             boolean isActive = studentIsActive(expirationDate, dateNow);
             if (!isActive) {
@@ -73,12 +55,19 @@ public class Student implements Serializable {
         return expirationDate;
     }
 
-    public static boolean studentIsActive(Date expirationDate, Date dateNow) {
-        if (expirationDate.compareTo(dateNow) < 0) {
-            return false;
+    public static boolean studentIsActive(LocalDateTime expirationDate, LocalDateTime dateNow) {
+        return dateNow.isBefore(expirationDate);
+    }
+
+    public String getFirstName() {
+        String name = this.socialName != null ? this.socialName : this.name;
+
+        if (name == null || name == "") {
+            return "estudante";
         }
 
-        return true;
+        String firstName = name.split(" ")[0];
+        return firstName;
     }
 
 }

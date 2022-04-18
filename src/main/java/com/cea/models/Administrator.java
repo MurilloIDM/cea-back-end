@@ -29,24 +29,15 @@ public class Administrator implements Serializable {
 	@GeneratedValue
 	@Column(name = "id")
 	private UUID id;
-	
 	private String name;
-	
 	private String username;
-	
 	@JsonIgnore
 	private String password;
-	
 	private Boolean roles;
-	
 	private Boolean isPrimaryAccess;
-	
 	private Date createdAt;
-	
 	private Date updatedAt;
-	
 	private String createdBy;
-	
 	private String updatedBy;
 
 }

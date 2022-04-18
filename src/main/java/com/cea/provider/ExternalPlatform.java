@@ -57,7 +57,7 @@ public class ExternalPlatform {
         HttpHeaders headers = new HttpHeaders();
         headers.set("token", TOKEN);
 
-        HttpEntity<String> entity = new HttpEntity<String>("", headers);
+        HttpEntity<String> entity = new HttpEntity<>("", headers);
 
         String page = "1";
         String startDate = "2021-01-01";
@@ -91,7 +91,7 @@ public class ExternalPlatform {
                     ClientDTO.class,
                     params);
         } catch (RestClientResponseException error) {
-            Integer status = error.getRawStatusCode();
+            int status = error.getRawStatusCode();
 
             if (status == 401 && QUERY_ATTEMPTS < 3) {
                 TOKEN = null;
