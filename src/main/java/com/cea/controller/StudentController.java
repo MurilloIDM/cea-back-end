@@ -1,6 +1,8 @@
 package com.cea.controller;
 
 import com.cea.dto.IsStudentDTO;
+import com.cea.dto.createAndUpdatePassword.RegisterPasswordDTO;
+import com.cea.dto.createAndUpdatePassword.UpdatePasswordDTO;
 import com.cea.dto.resetPassword.ResponseValidateTokenDTO;
 import com.cea.dto.resetPassword.ValidateTokenDTO;
 import com.cea.services.StudentService;
@@ -39,9 +41,24 @@ public class StudentController extends BasicController {
     @PostMapping("/password/reset/validate-token")
     public ResponseEntity<ResponseValidateTokenDTO> validateTokenForPasswordReset(
             @RequestBody @Valid ValidateTokenDTO payload) {
-        ResponseValidateTokenDTO validateToken = this.studentService.validateTokenForPasswordReset(payload);
+        ResponseValidateTokenDTO validateToken = this.studentService.validateTokenForPasswordReset(
+                payload, false);
 
         return ResponseEntity.ok().body(validateToken);
+    }
+
+    @PostMapping("/password/create")
+    public ResponseEntity registerPassword(
+            @RequestBody @Valid RegisterPasswordDTO payload) {
+        this.studentService.registerPassword(payload);
+
+        return ResponseEntity.status(HttpStatus.CREATED).build();
+    }
+
+    @PatchMapping("/password/update")
+    public void updatePassword(
+            @RequestBody @Valid UpdatePasswordDTO payload) {
+        this.studentService.updatePassword(payload);
     }
 
 }
