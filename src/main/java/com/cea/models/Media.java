@@ -22,6 +22,7 @@ public class Media implements Serializable {
     private UUID id;
     private String url;
     @ManyToOne()
+    @JoinColumn(name = "exclusive_post_id", nullable = false)
     private ExclusivePost exclusivePost;
 
 }

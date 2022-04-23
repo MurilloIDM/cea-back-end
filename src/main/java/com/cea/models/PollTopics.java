@@ -21,8 +21,10 @@ public class PollTopics implements Serializable {
     @GeneratedValue
     private UUID id;
     private String description;
+    @Column(nullable = true)
     private int totalVotes;
     @ManyToOne()
+    @JoinColumn(name = "exclusive_post_id", nullable = false)
     private ExclusivePost exclusivePost;
 
 }
