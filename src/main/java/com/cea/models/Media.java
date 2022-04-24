@@ -1,5 +1,6 @@
 package com.cea.models;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -21,8 +22,9 @@ public class Media implements Serializable {
     @GeneratedValue
     private UUID id;
     private String url;
-    @ManyToOne()
+    @ManyToOne
     @JoinColumn(name = "exclusive_post_id", nullable = false)
+    @JsonIgnore
     private ExclusivePost exclusivePost;
 
 }

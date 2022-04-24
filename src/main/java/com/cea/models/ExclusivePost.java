@@ -1,6 +1,7 @@
 package com.cea.models;
 
 import com.cea.enums.TypeExclusivePost;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -8,6 +9,7 @@ import lombok.NoArgsConstructor;
 import javax.persistence.*;
 import java.io.Serializable;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -33,9 +35,11 @@ public class ExclusivePost implements Serializable {
     private LocalDateTime updatedAt;
     private String createdBy;
     private String updatedBy;
+    @JsonIgnore
     @OneToMany(mappedBy = "exclusivePost")
-    private List<Media> media;
+    private List<Media> media = new ArrayList<Media>();
+    @JsonIgnore
     @OneToMany(mappedBy = "exclusivePost")
-    private List<PollTopics> pollTopics;
+    private List<PollTopics> pollTopics = new ArrayList<PollTopics>();
 
 }
