@@ -27,7 +27,6 @@ public class FreePostService {
 	private final HistoricStatusFreePostService historicStatusFreePostService;
 
 	public FreePost insert(FreePostDTO freePostDTO) {
-
 		FreePost freePost = freePostDTO.toEntity();
 
 		return freePostRepository.save(freePost);
