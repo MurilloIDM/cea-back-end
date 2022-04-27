@@ -1,6 +1,8 @@
 package com.cea.services;
 
 import com.cea.dto.IsStudentDTO;
+import com.cea.dto.createAndUpdatePassword.RegisterPasswordDTO;
+import com.cea.dto.createAndUpdatePassword.UpdatePasswordDTO;
 import com.cea.dto.externalPlatform.ResponseDataClientDTO;
 import com.cea.dto.externalPlatform.StudentInPlatformDTO;
 import com.cea.dto.resetPassword.ResponseValidateTokenDTO;
@@ -93,20 +95,6 @@ public class StudentService {
         return new IsStudentDTO(isStudent, isLead, isPrimaryAccess, isActive);
     }
 
-    private void basicInsert(ResponseDataClientDTO data, LocalDateTime expirationDate) {
-        LocalDateTime dateNow = this.localDateTimeUtils.dateNow();
-
-        Student student = new Student();
-
-        student.setName(data.getClient_name());
-        student.setEmail(data.getClient_email());
-        student.setPhoneNumber(data.getClient_cel());
-        student.setExpirationDate(expirationDate);
-        student.setUpdatedAt(dateNow);
-
-        this.studentRepository.save(student);
-    }
-
     public void sendMailForgotPassword(String mailTo) {
         LocalDateTime dateNow = this.localDateTimeUtils.dateNow();
         Optional<Student> student = Optional.ofNullable(this.studentRepository.findByEmail(mailTo));
@@ -115,9 +103,7 @@ public class StudentService {
             throw new HttpClientErrorException(HttpStatus.BAD_REQUEST, "Estudante não encontrado!");
         }
 
-        boolean studentExpirationDateNull = student.get().getExpirationDate() == null;
-        boolean studentIsActive = !studentExpirationDateNull && Student.studentIsActive(
-                student.get().getExpirationDate(), dateNow);
+        boolean studentIsActive = this.validateStatusStudent(student.get());
 
         if (!studentIsActive) {
             throw new HttpClientErrorException(
@@ -140,7 +126,7 @@ public class StudentService {
         }
     }
 
-    public ResponseValidateTokenDTO validateTokenForPasswordReset(ValidateTokenDTO payload) {
+    public ResponseValidateTokenDTO validateTokenForPasswordReset(ValidateTokenDTO payload, boolean withDelete) {
         String token = payload.getToken();
         String email = payload.getEmail();
 
@@ -167,7 +153,99 @@ public class StudentService {
             throw new HttpClientErrorException(HttpStatus.BAD_REQUEST, "Token expirado!");
         }
 
+        if (withDelete) {
+            this.studentTokensRepository.delete(studentToken);
+        }
+
         return new ResponseValidateTokenDTO(true);
+    }
+
+    public void registerPassword(RegisterPasswordDTO payload) {
+        String email = payload.getEmail();
+        String password = payload.getPassword();
+
+        Optional<Student> student = Optional.ofNullable(this.studentRepository.findByEmail(email));
+
+        if (student.isEmpty()) {
+            throw new HttpClientErrorException(HttpStatus.BAD_REQUEST, "Estudante não encontrado!");
+        }
+
+        boolean studentIsActive = this.validateStatusStudent(student.get());
+
+        if (!studentIsActive) {
+            throw new HttpClientErrorException(
+                    HttpStatus.BAD_REQUEST,
+                    "Estudante com acesso expirado ou não iniciado!");
+        }
+
+        if (student.get().getPassword() != null) {
+            throw new HttpClientErrorException(HttpStatus.BAD_REQUEST, "Estudante já possui senha cadastrada!");
+        }
+
+        String encryptedPassword = student.get().encryptPassword(password);
+        student.get().setPassword(encryptedPassword);
+
+        this.studentRepository.save(student.get());
+    }
+
+    public void updatePassword(UpdatePasswordDTO payload) {
+        String email = payload.getEmail();
+        String token = payload.getToken();
+        String password = payload.getPassword();
+
+        Optional<Student> student = Optional.ofNullable(this.studentRepository.findByEmail(email));
+
+        if (student.isEmpty()) {
+            throw new HttpClientErrorException(HttpStatus.BAD_REQUEST, "Estudante não encontrado!");
+        }
+
+        boolean studentIsActive = this.validateStatusStudent(student.get());
+
+        if (!studentIsActive) {
+            throw new HttpClientErrorException(
+                    HttpStatus.BAD_REQUEST,
+                    "Estudante com acesso expirado ou não iniciado!");
+        }
+
+        if (student.get().getPassword() == null) {
+            throw new HttpClientErrorException(HttpStatus.BAD_REQUEST, "Estudante não possui senha cadastrada!");
+        }
+
+        ResponseValidateTokenDTO validToken = this.validateTokenForPasswordReset(
+                new ValidateTokenDTO(email, token),
+                true
+        );
+
+        if (validToken.isValidToken()) {
+            String encryptedPassword = student.get().encryptPassword(password);
+            student.get().setPassword(encryptedPassword);
+
+            this.studentRepository.save(student.get());
+        }
+    }
+
+    private void basicInsert(ResponseDataClientDTO data, LocalDateTime expirationDate) {
+        LocalDateTime dateNow = this.localDateTimeUtils.dateNow();
+
+        Student student = new Student();
+
+        student.setName(data.getClient_name());
+        student.setEmail(data.getClient_email());
+        student.setPhoneNumber(data.getClient_cel());
+        student.setExpirationDate(expirationDate);
+        student.setUpdatedAt(dateNow);
+
+        this.studentRepository.save(student);
+    }
+
+    private boolean validateStatusStudent(Student student) {
+        LocalDateTime dateNow = this.localDateTimeUtils.dateNow();
+
+        boolean studentExpirationDateNull = student.getExpirationDate() == null;
+        boolean studentIsActive = !studentExpirationDateNull && Student.studentIsActive(
+                student.getExpirationDate(), dateNow);
+
+        return studentIsActive;
     }
 
 }
