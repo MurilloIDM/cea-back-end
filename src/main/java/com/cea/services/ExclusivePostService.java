@@ -1,9 +1,7 @@
 package com.cea.services;
 
-import com.cea.dto.exclusivePost.CreateContentDTO;
-import com.cea.dto.exclusivePost.CreateSurveyDTO;
-import com.cea.dto.exclusivePost.MediaContentDTO;
-import com.cea.dto.exclusivePost.PollTopicsDTO;
+import com.cea.dto.exclusivePost.*;
+import com.cea.dto.pollTopics.PollTopicsPercentageDTO;
 import com.cea.enums.TypeExclusivePost;
 import com.cea.models.ExclusivePost;
 import com.cea.models.Media;
@@ -13,11 +11,16 @@ import com.cea.repository.MediaRepository;
 import com.cea.repository.PollTopicsRepository;
 import com.cea.utils.LocalDateTimeUtils;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.HttpClientErrorException;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -26,6 +29,7 @@ public class ExclusivePostService {
     private final ExclusivePostRepository exclusivePostRepository;
     private final MediaRepository mediaRepository;
     private final PollTopicsRepository pollTopicsRepository;
+    private final PollTopicsService pollTopicsService;
     private final LocalDateTimeUtils localDateTimeUtils;
 
     public void createContent(CreateContentDTO payload) {
@@ -83,6 +87,106 @@ public class ExclusivePostService {
 
             this.pollTopicsRepository.save(pollTopics);
         }
+    }
+
+    public Page<ExclusivePost> findAllByPage(String type, String title, String status, Pageable pageRequest) {
+        Boolean statusPost = null;
+
+        if (status.equalsIgnoreCase("active") || status.equalsIgnoreCase("inative")) {
+            statusPost = getStatusPost(status);
+        }
+
+        if (!type.equals("") && !title.equals("")) {
+            if (!type.equalsIgnoreCase("TEXT") && !type.equalsIgnoreCase("SURVEY")) {
+                throw new HttpClientErrorException(
+                        HttpStatus.BAD_REQUEST, "O tipo não corresponde ao de enquete ou conteúdo!");
+            }
+
+            if (statusPost != null) {
+                return this.exclusivePostRepository
+                        .findByTitleIgnoreCaseContainingAndTypeEqualsAndStatusIsAndFiledFalse(
+                            title, TypeExclusivePost.valueOf(type.toUpperCase()), statusPost, pageRequest);
+            }
+
+            return this.exclusivePostRepository.findByTitleIgnoreCaseContainingAndTypeEqualsAndFiledFalse(
+                    title, TypeExclusivePost.valueOf(type.toUpperCase()), pageRequest);
+        }
+
+        if (!type.equals("") && title.equals("")) {
+            if (!type.equalsIgnoreCase("TEXT") && !type.equalsIgnoreCase("SURVEY")) {
+                throw new HttpClientErrorException(
+                        HttpStatus.BAD_REQUEST, "O tipo não corresponde ao de enquete ou conteúdo!");
+            }
+
+            if (statusPost != null) {
+                return this.exclusivePostRepository.findByTypeEqualsAndStatusIsAndFiledFalse(
+                        TypeExclusivePost.valueOf(type.toUpperCase()), statusPost, pageRequest);
+            }
+
+            return this.exclusivePostRepository.findByTypeEqualsAndFiledFalse(
+                    TypeExclusivePost.valueOf(type.toUpperCase()), pageRequest);
+        }
+
+        if (type.equals("") && !title.equals("")) {
+            if (statusPost != null) {
+                return this.exclusivePostRepository.findByTitleIgnoreCaseContainingAndStatusIsAndFiledFalse(
+                        title, statusPost, pageRequest);
+            }
+
+            return this.exclusivePostRepository.findByTitleIgnoreCaseContainingAndFiledFalse(title, pageRequest);
+        }
+
+        if (statusPost != null) {
+            return this.exclusivePostRepository.findAllByStatusIsAndFiledFalse(statusPost, pageRequest);
+        }
+
+        return this.exclusivePostRepository.findAllByFiledFalse(pageRequest);
+    }
+
+    public PageExclusivePostDTO findAllExclusivePostWithMediaOrPollTopics(Pageable pageRequest) {
+        Page<ExclusivePost> exclusivePostsInPage = this.exclusivePostRepository
+                .findAllByStatusTrueAndFiledFalse(pageRequest);
+        List<ExclusivePost> postsInPage = exclusivePostsInPage.getContent();
+
+        if (postsInPage.size() == 0) {
+            throw new HttpClientErrorException(HttpStatus.NO_CONTENT, "");
+        }
+
+        List<ExclusivePostWithMediaOrPollTopicsDTO> posts = new ArrayList<>();
+        for (ExclusivePost post : postsInPage) {
+            UUID id = post.getId();
+            TypeExclusivePost typePost = post.getType();
+
+            ExclusivePostWithMediaOrPollTopicsDTO exclusivePost = ExclusivePostWithMediaOrPollTopicsDTO.toDTO(post);
+
+            if (typePost.name().equals("TEXT")) {
+                List<Media> media = this.mediaRepository.findByExclusivePost_Id(id);
+                exclusivePost.setMedia(media);
+            }
+
+            if (typePost.name().equals("SURVEY")) {
+                List<PollTopics> pollTopics = this.pollTopicsRepository.findByExclusivePost_Id(id);
+
+                int totalVotes = this.pollTopicsService.getTotalVotes(pollTopics);
+                List<PollTopicsPercentageDTO> pollTopicsWithPercentage = this.pollTopicsService
+                        .getPollTopicsWithPercentage(pollTopics, totalVotes);
+
+                exclusivePost.setPollTopics(pollTopicsWithPercentage);
+            }
+
+            posts.add(exclusivePost);
+        }
+
+        int size = exclusivePostsInPage.getSize();
+        int totalPages = exclusivePostsInPage.getTotalPages();
+        long totalElements = exclusivePostsInPage.getTotalElements();
+        PageExclusivePostDTO exclusivePosts = new PageExclusivePostDTO(size, totalPages, totalElements, posts);
+
+        return exclusivePosts;
+    }
+
+    private Boolean getStatusPost(String statusValue) {
+        return (statusValue.equalsIgnoreCase("active")) ? true : false;
     }
 
 }
