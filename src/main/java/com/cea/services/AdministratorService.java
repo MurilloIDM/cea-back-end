@@ -1,10 +1,9 @@
 package com.cea.services;
 
-import java.util.List;
-import java.util.NoSuchElementException;
-import java.util.Random;
-import java.util.UUID;
+import java.util.*;
 
+import com.cea.dto.administrator.AdministratorCreatePasswordDTO;
+import com.cea.dto.administrator.AdministratorUserDTO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.EmptyResultDataAccessException;
@@ -15,8 +14,8 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.HttpClientErrorException;
 
-import com.cea.dto.AdministratorDTO;
-import com.cea.dto.AdministratorResponseDTO;
+import com.cea.dto.administrator.AdministratorDTO;
+import com.cea.dto.administrator.AdministratorResponseDTO;
 import com.cea.models.Administrator;
 import com.cea.repository.AdministratorRepository;
 
@@ -103,7 +102,6 @@ public class AdministratorService {
 	}
 	
 	public List<Administrator> findAll() {
-
 		return this.administratorRepository.findAll();
 	}
 	
@@ -121,6 +119,54 @@ public class AdministratorService {
 				"Esse registro não pode ser deletado!"
 			);
 		}
+	}
+
+	public AdministratorResponseDTO generateTempPassword(AdministratorUserDTO payload) {
+		String username = payload.getUsername();
+
+		Optional<Administrator> administrator = Optional.ofNullable(
+				this.administratorRepository.findByUsername(username));
+
+		if (administrator.isEmpty()) {
+			throw new HttpClientErrorException(HttpStatus.BAD_REQUEST, "Administrador não encontrado!");
+		}
+
+		String password = this.generatePassword();
+		String passwordEncrypted = administrator.get().encryptPassword(password);
+
+		administrator.get().setIsPrimaryAccess(true);
+		administrator.get().setPassword(passwordEncrypted);
+
+		this.administratorRepository.save(administrator.get());
+
+		return new AdministratorResponseDTO(
+				administrator.get().getId(),
+				administrator.get().getUsername(),
+				password
+		);
+	}
+
+	public void createPassword(AdministratorCreatePasswordDTO payload) {
+		String username = payload.getUsername();
+		String password = payload.getPassword();
+
+		Optional<Administrator> administrator = Optional.ofNullable(
+				this.administratorRepository.findByUsername(username));
+
+		if (administrator.isEmpty()) {
+			throw new HttpClientErrorException(HttpStatus.BAD_REQUEST, "Administrador não encontrado!");
+		}
+
+		if (!administrator.get().getIsPrimaryAccess()) {
+			throw new HttpClientErrorException(HttpStatus.BAD_REQUEST, "Administrator já possui acesso válido!");
+		}
+
+		String passwordEncrypted = administrator.get().encryptPassword(password);
+
+		administrator.get().setIsPrimaryAccess(false);
+		administrator.get().setPassword(passwordEncrypted);
+
+		this.administratorRepository.save(administrator.get());
 	}
 	
 	private String generatePassword() {
