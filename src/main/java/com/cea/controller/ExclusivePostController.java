@@ -1,7 +1,7 @@
 package com.cea.controller;
 
-import com.cea.dto.exclusivePost.CreateContentDTO;
-import com.cea.dto.exclusivePost.CreateSurveyDTO;
+import com.cea.dto.exclusivePost.ContentDTO;
+import com.cea.dto.exclusivePost.SurveyDTO;
 import com.cea.dto.exclusivePost.PageExclusivePostDTO;
 import com.cea.models.ExclusivePost;
 import com.cea.services.ExclusivePostService;
@@ -15,6 +15,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/exclusive-posts")
@@ -25,7 +26,7 @@ public class ExclusivePostController extends BasicController {
 
     @PostMapping("/content")
     public ResponseEntity createContent(
-            @RequestBody @Valid CreateContentDTO payload) {
+            @RequestBody @Valid ContentDTO payload) {
         this.exclusivePostService.createContent(payload);
 
         return ResponseEntity.status(HttpStatus.CREATED).build();
@@ -33,7 +34,7 @@ public class ExclusivePostController extends BasicController {
 
     @PostMapping("/survey")
     public ResponseEntity createSurvey(
-            @RequestBody @Valid CreateSurveyDTO payload) {
+            @RequestBody @Valid SurveyDTO payload) {
         this.exclusivePostService.createSurvey(payload);
 
         return ResponseEntity.status(HttpStatus.CREATED).build();
@@ -64,9 +65,27 @@ public class ExclusivePostController extends BasicController {
             @RequestParam(value = "orderBy", defaultValue = "createdAt") String orderBy) {
         Pageable pageRequest = PageRequest.of(page, linesPerPage, Sort.Direction.valueOf(direction), orderBy);
 
-        PageExclusivePostDTO exclusivePosts = this.exclusivePostService.findAllExclusivePostWithMediaOrPollTopics(pageRequest);
+        PageExclusivePostDTO exclusivePosts = this.exclusivePostService
+                .findAllExclusivePostWithMediaOrPollTopics(pageRequest);
 
         return ResponseEntity.ok(exclusivePosts);
     }
 
+    @PutMapping("/content/{id}")
+    public ResponseEntity updateContent(
+            @PathVariable("id") UUID id,
+            @RequestBody @Valid ContentDTO payload) {
+        this.exclusivePostService.updateContent(id, payload);
+
+        return ResponseEntity.ok().build();
+    }
+
+    @PutMapping("/survey/{id}")
+    public ResponseEntity updateSurvey(
+            @PathVariable("id") UUID id,
+            @RequestBody @Valid SurveyDTO payload) {
+        this.exclusivePostService.updateSurvey(id, payload);
+
+        return ResponseEntity.ok().build();
+    }
 }
