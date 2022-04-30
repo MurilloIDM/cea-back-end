@@ -1,4 +1,4 @@
-package com.cea.dto;
+package com.cea.dto.students;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

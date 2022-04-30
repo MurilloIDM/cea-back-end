@@ -7,10 +7,7 @@ import lombok.NoArgsConstructor;
 import org.springframework.security.crypto.factory.PasswordEncoderFactories;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-import javax.persistence.Table;
+import javax.persistence.*;
 import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -35,6 +32,10 @@ public class Student implements Serializable {
     private String password;
     private String email;
     private String phoneNumber;
+    @Column(columnDefinition = "boolean default true")
+    private boolean status;
+    @Column(columnDefinition = "boolean default false")
+    private boolean inactivationSoon;
     private LocalDateTime expirationDate;
     private LocalDateTime updatedAt;
 
