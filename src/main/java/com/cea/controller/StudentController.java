@@ -1,12 +1,18 @@
 package com.cea.controller;
 
-import com.cea.dto.IsStudentDTO;
+import com.cea.dto.students.IsStudentDTO;
 import com.cea.dto.createAndUpdatePassword.RegisterPasswordDTO;
 import com.cea.dto.createAndUpdatePassword.UpdatePasswordDTO;
 import com.cea.dto.resetPassword.ResponseValidateTokenDTO;
 import com.cea.dto.resetPassword.ValidateTokenDTO;
+import com.cea.dto.students.StudentSocialNameDTO;
+import com.cea.models.Student;
 import com.cea.services.StudentService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -15,6 +21,7 @@ import org.springframework.web.client.HttpClientErrorException;
 
 import javax.validation.Valid;
 import java.util.Optional;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/students")
@@ -60,5 +67,37 @@ public class StudentController extends BasicController {
             @RequestBody @Valid UpdatePasswordDTO payload) {
         this.studentService.updatePassword(payload);
     }
+
+    @GetMapping("/")
+    public ResponseEntity<Page<Student>> findAllByPage(
+            @RequestParam(value = "page", defaultValue = "0") Integer page,
+            @RequestParam(value = "linesPerPage", defaultValue = "10") Integer linesPerPage,
+            @RequestParam(value = "direction", defaultValue = "ASC") String direction,
+            @RequestParam(value = "orderBy", defaultValue = "name") String orderBy,
+            @RequestParam(value = "name", defaultValue = "") String name,
+            @RequestParam(value = "status", defaultValue = "all") String status) {
+        Pageable pageRequest = PageRequest.of(page, linesPerPage, Sort.Direction.valueOf(direction), orderBy);
+
+        Page<Student> students = this.studentService.findAllByPage(name, status, pageRequest);
+        return ResponseEntity.ok().body(students);
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<Student> findById(@PathVariable("id") UUID id) {
+        Student student = this.studentService.findById(id);
+
+        return ResponseEntity.ok(student);
+    }
+
+    @PatchMapping("/{id}")
+    public ResponseEntity updateSocialName(
+            @PathVariable("id") UUID id,
+            @RequestBody @Valid StudentSocialNameDTO payload) {
+        this.studentService.updateSocialName(id, payload);
+
+        return ResponseEntity.ok().build();
+    }
+
+
 
 }

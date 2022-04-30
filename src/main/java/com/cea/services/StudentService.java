@@ -1,12 +1,13 @@
 package com.cea.services;
 
-import com.cea.dto.IsStudentDTO;
+import com.cea.dto.students.IsStudentDTO;
 import com.cea.dto.createAndUpdatePassword.RegisterPasswordDTO;
 import com.cea.dto.createAndUpdatePassword.UpdatePasswordDTO;
 import com.cea.dto.externalPlatform.ResponseDataClientDTO;
 import com.cea.dto.externalPlatform.StudentInPlatformDTO;
 import com.cea.dto.resetPassword.ResponseValidateTokenDTO;
 import com.cea.dto.resetPassword.ValidateTokenDTO;
+import com.cea.dto.students.StudentSocialNameDTO;
 import com.cea.models.Lead;
 import com.cea.models.Student;
 import com.cea.models.StudentTokens;
@@ -17,6 +18,8 @@ import com.cea.repository.LeadRepository;
 import com.cea.repository.StudentRepository;
 import com.cea.repository.StudentTokensRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.HttpClientErrorException;
@@ -25,6 +28,7 @@ import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -224,6 +228,78 @@ public class StudentService {
         }
     }
 
+    public Page<Student> findAllByPage(String name, String status, Pageable pageRequest) {
+        Page<Student> studentsPage = null;
+
+        if (!name.equals("")) {
+            if (status.equalsIgnoreCase("active") || status.equalsIgnoreCase("inative")) {
+                boolean statusValue = status.equalsIgnoreCase("active") ? true : false;
+
+                studentsPage = this.studentRepository
+                        .findAllByStatusIsAndNameIgnoreCaseContainingOrSocialNameIgnoreCaseContaining(
+                                statusValue, name, name, pageRequest
+                        );
+            }
+
+
+            if (status.equalsIgnoreCase("in_deactivation")) {
+                studentsPage = this.studentRepository
+                        .findAllByInactivationSoonTrueAndNameIgnoreCaseContainingOrSocialNameIgnoreCaseContaining(
+                                name, name, pageRequest
+                        );
+            }
+
+            if (status.equalsIgnoreCase("all")) {
+                studentsPage = this.studentRepository
+                        .findAllByNameIgnoreCaseContainingOrSocialNameIgnoreCaseContaining(name, name, pageRequest);
+            }
+        }
+
+        if (name.equals("")) {
+            if (status.equalsIgnoreCase("active") || status.equalsIgnoreCase("inative")) {
+                boolean statusValue = status.equalsIgnoreCase("active") ? true : false;
+
+                studentsPage = this.studentRepository.findAllByStatusIs(statusValue, pageRequest);
+            }
+
+            if (status.equalsIgnoreCase("in_deactivation")) {
+                studentsPage = this.studentRepository.findAllByInactivationSoonIsTrue(pageRequest);
+            }
+
+            if (status.equalsIgnoreCase("all")) {
+                studentsPage = this.studentRepository.findAll(pageRequest);
+            }
+        }
+
+        return studentsPage;
+    }
+
+    public Student findById(UUID id) {
+        Optional<Student> student = this.studentRepository.findById(id);
+
+        if (student.isEmpty()) {
+            throw new HttpClientErrorException(HttpStatus.BAD_REQUEST, "Estudante não encontrado!");
+        }
+
+        return student.get();
+    }
+
+    public void updateSocialName(UUID id, StudentSocialNameDTO payload) {
+        Optional<Student> student = this.studentRepository.findById(id);
+
+        if (student.isEmpty()) {
+            throw new HttpClientErrorException(HttpStatus.BAD_REQUEST, "Estudante não encontrado!");
+        }
+
+        LocalDateTime dateNow = this.localDateTimeUtils.dateNow();
+
+        String socialName = payload.getSocialName();
+        student.get().setSocialName(socialName);
+        student.get().setUpdatedAt(dateNow);
+
+        this.studentRepository.save(student.get());
+    }
+
     private void basicInsert(ResponseDataClientDTO data, LocalDateTime expirationDate) {
         LocalDateTime dateNow = this.localDateTimeUtils.dateNow();
 
@@ -233,6 +309,7 @@ public class StudentService {
         student.setEmail(data.getClient_email());
         student.setPhoneNumber(data.getClient_cel());
         student.setExpirationDate(expirationDate);
+        student.setStatus(true);
         student.setUpdatedAt(dateNow);
 
         this.studentRepository.save(student);
