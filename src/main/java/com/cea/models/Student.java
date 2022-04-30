@@ -12,6 +12,7 @@ import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
 import java.util.UUID;
 
 @Data
@@ -76,6 +77,11 @@ public class Student implements Serializable {
     public String encryptPassword(String password) {
         PasswordEncoder passwordEncoder = PasswordEncoderFactories.createDelegatingPasswordEncoder();
         return passwordEncoder.encode(password);
+    }
+
+    public static boolean withInactivationSoon(LocalDateTime expirationDate, LocalDateTime dateNow) {
+        long amountDays = ChronoUnit.DAYS.between(dateNow, expirationDate);
+        return amountDays >= 0 && amountDays <= 30 ? true : false;
     }
 
 }

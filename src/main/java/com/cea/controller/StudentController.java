@@ -6,6 +6,7 @@ import com.cea.dto.createAndUpdatePassword.UpdatePasswordDTO;
 import com.cea.dto.resetPassword.ResponseValidateTokenDTO;
 import com.cea.dto.resetPassword.ValidateTokenDTO;
 import com.cea.dto.students.StudentSocialNameDTO;
+import com.cea.dto.students.StudentUploadDTO;
 import com.cea.models.Student;
 import com.cea.services.StudentService;
 import lombok.RequiredArgsConstructor;
@@ -18,8 +19,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.validation.Valid;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -98,6 +101,11 @@ public class StudentController extends BasicController {
         return ResponseEntity.ok().build();
     }
 
+    @PostMapping("/upload")
+    public ResponseEntity<List<StudentUploadDTO>> importStudents(@RequestParam("file")MultipartFile file) {
+        List<StudentUploadDTO> operations = this.studentService.importStudents(file);
 
+        return ResponseEntity.ok(operations);
+    }
 
 }
