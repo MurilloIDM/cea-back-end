@@ -4,6 +4,8 @@ import java.net.URI;
 import java.util.List;
 import java.util.UUID;
 
+import com.cea.dto.administrator.AdministratorCreatePasswordDTO;
+import com.cea.dto.administrator.AdministratorUserDTO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -21,15 +23,17 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
-import com.cea.dto.AdministratorDTO;
-import com.cea.dto.AdministratorResponseDTO;
+import com.cea.dto.administrator.AdministratorDTO;
+import com.cea.dto.administrator.AdministratorResponseDTO;
 import com.cea.models.Administrator;
 import com.cea.services.AdministratorService;
+
+import javax.validation.Valid;
 
 @RestController
 @RequestMapping("/administrators")
 @RequiredArgsConstructor
-public class AdministratorController {
+public class AdministratorController extends BasicController {
 
 	private final AdministratorService administratorService;
 	
@@ -89,5 +93,21 @@ public class AdministratorController {
 		this.administratorService.delete(id);
 		
 		return ResponseEntity.ok(null);
+	}
+
+	@PostMapping("/password/generate")
+	public ResponseEntity<AdministratorResponseDTO> generateTemporaryPassword(
+			@RequestBody @Valid AdministratorUserDTO payload) {
+		AdministratorResponseDTO administrator = this.administratorService.generateTempPassword(payload);
+
+		return ResponseEntity.ok(administrator);
+	}
+
+	@PostMapping("/password/create")
+	public ResponseEntity createPassword(
+			@RequestBody @Valid AdministratorCreatePasswordDTO payload) {
+		this.administratorService.createPassword(payload);
+
+		return ResponseEntity.ok().build();
 	}
 }

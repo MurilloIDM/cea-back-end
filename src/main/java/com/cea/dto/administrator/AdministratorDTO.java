@@ -1,4 +1,4 @@
-package com.cea.dto;
+package com.cea.dto.administrator;
 
 import java.io.Serializable;
 import java.util.Date;

@@ -15,6 +15,8 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.security.crypto.factory.PasswordEncoderFactories;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 @Data
 @AllArgsConstructor
@@ -39,5 +41,10 @@ public class Administrator implements Serializable {
 	private Date updatedAt;
 	private String createdBy;
 	private String updatedBy;
+
+	public String encryptPassword(String password) {
+		PasswordEncoder passwordEncoder = PasswordEncoderFactories.createDelegatingPasswordEncoder();
+		return passwordEncoder.encode(password);
+	}
 
 }
