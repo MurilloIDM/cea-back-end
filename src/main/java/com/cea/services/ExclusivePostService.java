@@ -20,6 +20,7 @@ import org.springframework.web.client.HttpClientErrorException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -32,7 +33,7 @@ public class ExclusivePostService {
     private final PollTopicsService pollTopicsService;
     private final LocalDateTimeUtils localDateTimeUtils;
 
-    public void createContent(CreateContentDTO payload) {
+    public void createContent(ContentDTO payload) {
         LocalDateTime dateNow = this.localDateTimeUtils.dateNow();
 
         ExclusivePost exclusivePost = payload.toEntity();
@@ -56,7 +57,7 @@ public class ExclusivePostService {
         }
     }
 
-    public void createSurvey(CreateSurveyDTO payload) {
+    public void createSurvey(SurveyDTO payload) {
         LocalDateTime dateNow = this.localDateTimeUtils.dateNow();
 
         ExclusivePost exclusivePost = payload.toEntity();
@@ -73,8 +74,9 @@ public class ExclusivePostService {
                     HttpStatus.BAD_REQUEST, "Deve ser cadastrado ao menos um tópico para a enquete!");
         }
 
-        if (payload.getPollTopics().size() > 5) {
-            throw new HttpClientErrorException(HttpStatus.BAD_REQUEST, "Deve haver no máximo 5 tópicos por enquete!");
+        if (payload.getPollTopics().size() < 2 || payload.getPollTopics().size() > 5) {
+            throw new HttpClientErrorException(
+                    HttpStatus.BAD_REQUEST, "Deve haver no mínimo 2 e no máximo 5 tópicos por enquete!");
         }
 
         exclusivePost.setType(TypeExclusivePost.valueOf(payload.getType()));
@@ -185,8 +187,104 @@ public class ExclusivePostService {
         return exclusivePosts;
     }
 
+    public void updateContent(UUID id, ContentDTO payload) {
+        Optional<ExclusivePost> exclusivePost = this.exclusivePostRepository.findById(id);
+
+        if (exclusivePost.isEmpty()) {
+            throw new HttpClientErrorException(HttpStatus.BAD_REQUEST, "Conteúdo não encontrado!");
+        }
+
+        if (!payload.getType().equalsIgnoreCase("TEXT")) {
+            throw new HttpClientErrorException(HttpStatus.BAD_REQUEST, "O tipo não corresponde ao de conteúdo!");
+        }
+
+        updateContentData(exclusivePost.get(), payload);
+
+        this.exclusivePostRepository.save(exclusivePost.get());
+
+        for (MediaContentDTO mediaContent : payload.getMedia()) {
+            if (mediaContent.isRemove()) {
+                this.mediaRepository.deleteById(mediaContent.getId());
+                continue;
+            }
+
+            Media media = new Media();
+            media.setId(mediaContent.getId());
+            media.setUrl(mediaContent.getUrl());
+            media.setExclusivePost(exclusivePost.get());
+
+            this.mediaRepository.save(media);
+        }
+    }
+
+    public void updateSurvey(UUID id, SurveyDTO payload) {
+        Optional<ExclusivePost> exclusivePost = this.exclusivePostRepository.findById(id);
+
+        if (exclusivePost.isEmpty()) {
+            throw new HttpClientErrorException(HttpStatus.BAD_REQUEST, "Enquete não encontrada!");
+        }
+
+        if (!payload.getType().equalsIgnoreCase("SURVEY")) {
+            throw new HttpClientErrorException(HttpStatus.BAD_REQUEST, "O tipo não corresponde ao de enquete!");
+        }
+
+        if (payload.getPollTopics().size() < 2 || payload.getPollTopics().size() > 5) {
+            throw new HttpClientErrorException(
+                    HttpStatus.BAD_REQUEST, "Deve haver no mínimo 2 e no máximo 5 tópicos por enquete!");
+        }
+
+        updateSurveyData(exclusivePost.get(), payload);
+
+        this.exclusivePostRepository.save(exclusivePost.get());
+
+        List<PollTopics> existingPollTopics = this.pollTopicsRepository.findByExclusivePost_Id(id);
+        int totalVotes = this.pollTopicsService.getTotalVotes(existingPollTopics);
+
+        if (totalVotes != 0) {
+            throw new HttpClientErrorException(
+                    HttpStatus.BAD_REQUEST,
+                    "Enquete que já possui votos não pode ter tópicos atualizados ou adicionados!");
+        }
+
+        for (PollTopicsDTO pollTopic : payload.getPollTopics()) {
+            if (pollTopic.isRemove()) {
+                this.pollTopicsRepository.deleteById(pollTopic.getId());
+                continue;
+            }
+
+            PollTopics pollTopics = new PollTopics();
+            pollTopics.setId(pollTopic.getId());
+            pollTopics.setDescription(pollTopic.getDescription());
+            pollTopics.setExclusivePost(exclusivePost.get());
+
+            this.pollTopicsRepository.save(pollTopics);
+        }
+    }
+
     private Boolean getStatusPost(String statusValue) {
         return (statusValue.equalsIgnoreCase("active")) ? true : false;
+    }
+
+    private void updateContentData(ExclusivePost exclusivePostAlreadyExists, ContentDTO contentDTO) {
+        LocalDateTime dateNow = this.localDateTimeUtils.dateNow();
+
+        ExclusivePost exclusivePost = contentDTO.toEntity();
+        exclusivePostAlreadyExists.setTitle(exclusivePost.getTitle());
+        exclusivePostAlreadyExists.setDescription(exclusivePost.getDescription());
+        exclusivePostAlreadyExists.setStatus(exclusivePost.isStatus());
+        exclusivePostAlreadyExists.setUpdatedBy(exclusivePost.getUpdatedBy());
+        exclusivePostAlreadyExists.setUpdatedAt(dateNow);
+    }
+
+    private void updateSurveyData(ExclusivePost exclusivePostAlreadyExists, SurveyDTO surveyDTO) {
+        LocalDateTime dateNow = this.localDateTimeUtils.dateNow();
+
+        ExclusivePost exclusivePost = surveyDTO.toEntity();
+        exclusivePostAlreadyExists.setTitle(exclusivePost.getTitle());
+        exclusivePostAlreadyExists.setDescription(exclusivePost.getDescription());
+        exclusivePostAlreadyExists.setStatus(exclusivePost.isStatus());
+        exclusivePostAlreadyExists.setUpdatedBy(exclusivePost.getUpdatedBy());
+        exclusivePostAlreadyExists.setUpdatedAt(dateNow);
     }
 
 }

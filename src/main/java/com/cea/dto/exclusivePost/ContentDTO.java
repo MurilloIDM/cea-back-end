@@ -1,33 +1,32 @@
 package com.cea.dto.exclusivePost;
 
-import com.cea.enums.TypeExclusivePost;
 import com.cea.models.ExclusivePost;
+import com.sun.istack.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
 import java.util.List;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class CreateSurveyDTO {
+public class ContentDTO {
 
     @NotBlank(message = "Campo obrigatório! Não deve ser vazio.")
     private String title;
     @NotBlank(message = "Campo obrigatório! Não deve ser vazio.")
     private String description;
-    @NotNull
+    @NotNull()
     private boolean status;
     @NotBlank(message = "Campo obrigatório! Não deve ser vazio.")
     private String type;
     @NotBlank(message = "Campo obrigatório! Não deve ser vazio.")
     private String username;
     @Valid
-    private List<PollTopicsDTO> pollTopics;
+    private List<MediaContentDTO> media;
 
     public ExclusivePost toEntity() {
         ExclusivePost exclusivePost = new ExclusivePost();
