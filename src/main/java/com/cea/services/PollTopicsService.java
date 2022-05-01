@@ -3,7 +3,10 @@ package com.cea.services;
 import com.cea.dto.pollTopics.PollTopicsPercentageDTO;
 import com.cea.dto.pollTopics.ResponsePollTopicsWithPercentageDTO;
 import com.cea.models.PollTopics;
+import com.cea.models.Student;
+import com.cea.models.StudentVotes;
 import com.cea.repository.PollTopicsRepository;
+import com.cea.repository.StudentVotesRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -13,6 +16,7 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -20,6 +24,8 @@ import java.util.UUID;
 public class PollTopicsService {
 
     private final PollTopicsRepository pollTopicsRepository;
+    private final StudentVotesRepository studentVotesRepository;
+    private final StudentService studentService;
 
     public ResponsePollTopicsWithPercentageDTO findVotesWithPercentageByExclusivePostId(UUID exclusivePostId) {
         List<PollTopics> pollTopics = this.pollTopicsRepository.findByExclusivePost_Id(exclusivePostId);
@@ -29,7 +35,8 @@ public class PollTopicsService {
         }
 
         int totalVotes = this.getTotalVotes(pollTopics);
-        List<PollTopicsPercentageDTO> listPollTopics = this.getPollTopicsWithPercentage(pollTopics, totalVotes);
+        List<PollTopicsPercentageDTO> listPollTopics = this.getPollTopicsWithPercentage(
+                pollTopics, null, totalVotes);
 
         ResponsePollTopicsWithPercentageDTO pollTopicsWithPercentage = new ResponsePollTopicsWithPercentageDTO();
         pollTopicsWithPercentage.setTotalVotes(totalVotes);
@@ -48,10 +55,14 @@ public class PollTopicsService {
         return totalVotes;
     }
 
-    public List<PollTopicsPercentageDTO> getPollTopicsWithPercentage(List<PollTopics> pollTopics, int totalVotes) {
+    public List<PollTopicsPercentageDTO> getPollTopicsWithPercentage(
+            List<PollTopics> pollTopics,
+            Student student,
+            int totalVotes) {
         List<PollTopicsPercentageDTO> pollTopicsWithPercentage = new ArrayList<>();
 
         for (PollTopics pollTopic : pollTopics) {
+            boolean hasVote = false;
             double roundedPercentage = 0.0;
             int votes = pollTopic.getTotalVotes();
 
@@ -62,11 +73,21 @@ public class PollTopicsService {
                 roundedPercentage = bigDecimal.doubleValue();
             }
 
+            if (student != null) {
+                Optional<StudentVotes> studentVotes = Optional.ofNullable(this.studentVotesRepository
+                        .findByStudentAndPollTopics(student, pollTopic));
+
+                if (studentVotes.isPresent()) {
+                    hasVote = true;
+                }
+            }
+
             pollTopicsWithPercentage.add(new PollTopicsPercentageDTO(
                     pollTopic.getId(),
                     pollTopic.getDescription(),
                     votes,
-                    roundedPercentage));
+                    roundedPercentage,
+                    hasVote));
         }
 
         return pollTopicsWithPercentage;

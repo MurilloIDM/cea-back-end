@@ -15,5 +15,6 @@ public class PollTopicsPercentageDTO {
     private String description;
     private int votes;
     private Double percentageVotes;
+    private boolean hasVote;
 
 }

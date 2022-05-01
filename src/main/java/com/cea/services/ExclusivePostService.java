@@ -3,12 +3,8 @@ package com.cea.services;
 import com.cea.dto.exclusivePost.*;
 import com.cea.dto.pollTopics.PollTopicsPercentageDTO;
 import com.cea.enums.TypeExclusivePost;
-import com.cea.models.ExclusivePost;
-import com.cea.models.Media;
-import com.cea.models.PollTopics;
-import com.cea.repository.ExclusivePostRepository;
-import com.cea.repository.MediaRepository;
-import com.cea.repository.PollTopicsRepository;
+import com.cea.models.*;
+import com.cea.repository.*;
 import com.cea.utils.LocalDateTimeUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -30,7 +26,10 @@ public class ExclusivePostService {
     private final ExclusivePostRepository exclusivePostRepository;
     private final MediaRepository mediaRepository;
     private final PollTopicsRepository pollTopicsRepository;
+    private final StudentRepository studentRepository;
+    private final StudentVotesRepository studentVotesRepository;
     private final PollTopicsService pollTopicsService;
+    private final StudentService studentService;
     private final LocalDateTimeUtils localDateTimeUtils;
 
     public void createContent(ContentDTO payload) {
@@ -145,7 +144,7 @@ public class ExclusivePostService {
         return this.exclusivePostRepository.findAllByFiledFalse(pageRequest);
     }
 
-    public PageExclusivePostDTO findAllExclusivePostWithMediaOrPollTopics(Pageable pageRequest) {
+    public PageExclusivePostDTO findAllExclusivePostWithMediaOrPollTopics(UUID studentId, Pageable pageRequest) {
         Page<ExclusivePost> exclusivePostsInPage = this.exclusivePostRepository
                 .findAllByStatusTrueAndFiledFalse(pageRequest);
         List<ExclusivePost> postsInPage = exclusivePostsInPage.getContent();
@@ -153,6 +152,8 @@ public class ExclusivePostService {
         if (postsInPage.size() == 0) {
             throw new HttpClientErrorException(HttpStatus.NO_CONTENT, "");
         }
+
+        Student student = this.studentService.findById(studentId);
 
         List<ExclusivePostWithMediaOrPollTopicsDTO> posts = new ArrayList<>();
         for (ExclusivePost post : postsInPage) {
@@ -171,7 +172,7 @@ public class ExclusivePostService {
 
                 int totalVotes = this.pollTopicsService.getTotalVotes(pollTopics);
                 List<PollTopicsPercentageDTO> pollTopicsWithPercentage = this.pollTopicsService
-                        .getPollTopicsWithPercentage(pollTopics, totalVotes);
+                        .getPollTopicsWithPercentage(pollTopics, student, totalVotes);
 
                 exclusivePost.setPollTopics(pollTopicsWithPercentage);
             }
@@ -259,6 +260,63 @@ public class ExclusivePostService {
 
             this.pollTopicsRepository.save(pollTopics);
         }
+    }
+    
+    public ExclusivePostWithMediaOrPollTopicsDTO addVotes(StudentVotesDTO payload) {
+        UUID studentId = payload.getStudentId();
+        UUID pollTopicsId = payload.getPollTopicsId();
+        UUID exclusivePostId = payload.getExclusivePostId();
+
+        Student student = this.studentService.findById(studentId);
+
+        Optional<ExclusivePost> exclusivePost = this.exclusivePostRepository.findById(exclusivePostId);
+
+        if (exclusivePost.isEmpty()) {
+            throw new HttpClientErrorException(HttpStatus.BAD_REQUEST, "Enquete não encontrado!");
+        }
+
+        Optional<PollTopics> pollTopic = this.pollTopicsRepository.findById(pollTopicsId);
+
+        if (pollTopic.isEmpty()) {
+            throw new HttpClientErrorException(HttpStatus.BAD_REQUEST, "Tópico de enquete não encontrado!");
+        }
+
+        if (!pollTopic.get().getExclusivePost().getId().equals(exclusivePostId)) {
+            throw new HttpClientErrorException(
+                    HttpStatus.BAD_REQUEST, "Tópico de enquete não pertence a enquete informada!");
+        }
+
+        List<StudentVotes> studentVotes = this.studentVotesRepository
+                .findAllByExclusivePostAndStudent(exclusivePost.get(), student);
+
+        if (studentVotes.size() > 0) {
+            throw new HttpClientErrorException(HttpStatus.BAD_REQUEST, "Estudante já tem voto nessa enquete!");
+        }
+
+        int votes = pollTopic.get().getTotalVotes() + 1;
+        pollTopic.get().setTotalVotes(votes);
+
+        this.pollTopicsRepository.save(pollTopic.get());
+
+        StudentVotes studentVote = new StudentVotes();
+        studentVote.setStudent(student);
+        studentVote.setPollTopics(pollTopic.get());
+        studentVote.setExclusivePost(exclusivePost.get());
+
+        this.studentVotesRepository.save(studentVote);
+
+        ExclusivePostWithMediaOrPollTopicsDTO response = ExclusivePostWithMediaOrPollTopicsDTO
+                .toDTO(exclusivePost.get());
+
+        List<PollTopics> pollTopicsInPost = this.pollTopicsRepository.findByExclusivePost_Id(exclusivePostId);
+        int totalVotes = this.pollTopicsService.getTotalVotes(pollTopicsInPost);
+
+        List<PollTopicsPercentageDTO> pollTopics = this.pollTopicsService.getPollTopicsWithPercentage(
+                pollTopicsInPost, student, totalVotes);
+
+        response.setPollTopics(pollTopics);
+
+        return response;
     }
 
     private Boolean getStatusPost(String statusValue) {
