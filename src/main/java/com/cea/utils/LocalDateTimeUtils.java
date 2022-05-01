@@ -1,11 +1,14 @@
 package com.cea.utils;
 
 import lombok.Data;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.stereotype.Component;
 
 import java.time.Duration;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 
 @Data
@@ -27,5 +30,12 @@ public class LocalDateTimeUtils {
 
     public boolean validateDateTime(LocalDateTime date, LocalDateTime dateNow) {
         return dateNow.isBefore(date);
+    }
+
+    public LocalDateTime convertStringToDate(String dateStr) {
+        DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+        LocalDateTime dateTime = LocalDate.parse(dateStr, dateTimeFormatter).atStartOfDay();
+
+        return dateTime;
     }
 }

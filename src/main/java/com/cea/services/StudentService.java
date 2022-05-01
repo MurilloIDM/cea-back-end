@@ -8,8 +8,10 @@ import com.cea.dto.externalPlatform.StudentInPlatformDTO;
 import com.cea.dto.resetPassword.ResponseValidateTokenDTO;
 import com.cea.dto.resetPassword.ValidateTokenDTO;
 import com.cea.dto.students.StudentSocialNameDTO;
+import com.cea.dto.students.StudentUploadDTO;
 import com.cea.models.Lead;
 import com.cea.models.Student;
+import com.cea.models.StudentCSV;
 import com.cea.models.StudentTokens;
 import com.cea.utils.LocalDateTimeUtils;
 import com.cea.provider.ExternalPlatform;
@@ -17,18 +19,22 @@ import com.cea.provider.SendGridMail;
 import com.cea.repository.LeadRepository;
 import com.cea.repository.StudentRepository;
 import com.cea.repository.StudentTokensRepository;
+import com.opencsv.bean.CsvToBean;
+import com.opencsv.bean.CsvToBeanBuilder;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.Reader;
 import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
@@ -298,6 +304,80 @@ public class StudentService {
         student.get().setUpdatedAt(dateNow);
 
         this.studentRepository.save(student.get());
+    }
+    
+    public List<StudentUploadDTO> importStudents(MultipartFile file) {
+        if (file.isEmpty()) {
+            throw new HttpClientErrorException(HttpStatus.BAD_REQUEST, "O arquivo de upload está vazio!");
+        }
+
+        List<StudentCSV> studentsCSV = null;
+        try (Reader reader = new BufferedReader(new InputStreamReader(file.getInputStream()))) {
+
+            CsvToBean<StudentCSV> csvToBean = new CsvToBeanBuilder(reader)
+                    .withType(StudentCSV.class)
+                    .withIgnoreLeadingWhiteSpace(true)
+                    .build();
+
+            studentsCSV = csvToBean.parse();
+
+        } catch (Exception ex) {
+            throw new HttpClientErrorException(HttpStatus.BAD_REQUEST, "Falha ao processar arquivo!");
+        }
+
+        List<StudentUploadDTO> operations = new ArrayList<>();
+
+        for (StudentCSV studentCSV : studentsCSV) {
+            String name = studentCSV.getName().trim();
+            String email = studentCSV.getEmail().trim();
+            String dateStr = studentCSV.getExpirationDate().trim();
+            String phoneNumber = studentCSV.getPhoneNumber().trim();
+
+            Optional<Student> studentAlreadyExists = Optional.ofNullable(this.studentRepository.findByEmail(email));
+
+            StudentUploadDTO studentUpload = new StudentUploadDTO();
+
+            if (studentAlreadyExists.isPresent()) {
+                studentUpload.setEmail(email);
+                studentUpload.setSuccess(false);
+                studentUpload.setMessage("Já existe estudante cadastrado com o e-mail informado!");
+                operations.add(studentUpload);
+                continue;
+            }
+
+            if (name.equals("") || email.equals("") || dateStr.equals("")) {
+                studentUpload.setEmail(email);
+                studentUpload.setSuccess(false);
+                studentUpload.setMessage("Não foi fornecido nome, email e data de expiração!");
+                operations.add(studentUpload);
+                continue;
+            }
+
+            LocalDateTime dateNow = this.localDateTimeUtils.dateNow();
+            LocalDateTime expirationDate = this.localDateTimeUtils.convertStringToDate(dateStr);
+
+            boolean isActive = Student.studentIsActive(expirationDate, dateNow);
+            boolean inactivationSoon = Student.withInactivationSoon(expirationDate, dateNow);
+
+            Student student = new Student();
+            student.setName(name);
+            student.setEmail(email);
+            student.setStatus(isActive);
+            student.setUpdatedAt(dateNow);
+            student.setPhoneNumber(phoneNumber);
+            student.setExpirationDate(expirationDate);
+            student.setInactivationSoon(inactivationSoon);
+
+            this.studentRepository.save(student);
+
+            studentUpload.setEmail(email);
+            studentUpload.setSuccess(true);
+            studentUpload.setMessage("Estudante cadastrado com sucesso!");
+
+            operations.add(studentUpload);
+        }
+
+        return operations;
     }
 
     private void basicInsert(ResponseDataClientDTO data, LocalDateTime expirationDate) {
