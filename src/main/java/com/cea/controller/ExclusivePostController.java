@@ -1,8 +1,6 @@
 package com.cea.controller;
 
-import com.cea.dto.exclusivePost.ContentDTO;
-import com.cea.dto.exclusivePost.SurveyDTO;
-import com.cea.dto.exclusivePost.PageExclusivePostDTO;
+import com.cea.dto.exclusivePost.*;
 import com.cea.models.ExclusivePost;
 import com.cea.services.ExclusivePostService;
 import lombok.RequiredArgsConstructor;
@@ -62,11 +60,12 @@ public class ExclusivePostController extends BasicController {
             @RequestParam(value = "page", defaultValue = "0") Integer page,
             @RequestParam(value = "linesPerPage", defaultValue = "10") Integer linesPerPage,
             @RequestParam(value = "direction", defaultValue = "ASC") String direction,
-            @RequestParam(value = "orderBy", defaultValue = "createdAt") String orderBy) {
+            @RequestParam(value = "orderBy", defaultValue = "createdAt") String orderBy,
+            @RequestParam(value = "studentId", defaultValue = "") UUID studentId) {
         Pageable pageRequest = PageRequest.of(page, linesPerPage, Sort.Direction.valueOf(direction), orderBy);
 
         PageExclusivePostDTO exclusivePosts = this.exclusivePostService
-                .findAllExclusivePostWithMediaOrPollTopics(pageRequest);
+                .findAllExclusivePostWithMediaOrPollTopics(studentId, pageRequest);
 
         return ResponseEntity.ok(exclusivePosts);
     }
@@ -88,4 +87,13 @@ public class ExclusivePostController extends BasicController {
 
         return ResponseEntity.ok().build();
     }
+    
+    @PostMapping("/survey/vote")
+    public ResponseEntity<ExclusivePostWithMediaOrPollTopicsDTO> addVoteSurvey(
+            @RequestBody @Valid StudentVotesDTO payload) {
+        ExclusivePostWithMediaOrPollTopicsDTO exclusivePost = this.exclusivePostService.addVotes(payload);
+
+        return ResponseEntity.ok(exclusivePost);
+    }
+
 }
