@@ -28,6 +28,7 @@ public class ExclusivePost implements Serializable {
     @Enumerated(EnumType.STRING)
     private TypeExclusivePost type;
     private String title;
+    @Column(columnDefinition = "TEXT")
     private String description;
     private boolean status;
     private boolean filed;
