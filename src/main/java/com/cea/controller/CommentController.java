@@ -1,6 +1,7 @@
 package com.cea.controller;
 
 import com.cea.dto.comment.CommentDTO;
+import com.cea.dto.comment.CommentReplyDTO;
 import com.cea.services.CommentService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -21,6 +22,13 @@ public class CommentController extends BasicController {
     @PostMapping("/create")
     public ResponseEntity addComment(@RequestBody @Valid CommentDTO payload) {
         this.commentService.addComment(payload);
+
+        return ResponseEntity.ok().build();
+    }
+
+    @PostMapping("/reply/create")
+    public ResponseEntity addCommentReply(@RequestBody @Valid CommentReplyDTO payload) {
+        this.commentService.addCommentReply(payload);
 
         return ResponseEntity.ok().build();
     }
