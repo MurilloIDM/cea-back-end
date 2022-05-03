@@ -1,11 +1,11 @@
 package com.cea.controller;
 
-import com.cea.dto.comment.CommentDTO;
-import com.cea.dto.comment.CommentInativeDTO;
-import com.cea.dto.comment.CommentReplyDTO;
-import com.cea.dto.comment.CommentReplyInativeDTO;
+import com.cea.dto.comment.*;
 import com.cea.services.CommentService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -37,6 +37,8 @@ public class CommentController extends BasicController {
     public ResponseEntity inativeCommentReply(
             @RequestBody @Valid CommentReplyInativeDTO payload) {
         this.commentService.inativeCommentReply(payload);
+
+        return ResponseEntity.ok().build();
     }
     
     @PatchMapping("/")
@@ -44,6 +46,28 @@ public class CommentController extends BasicController {
         this.commentService.inativeComment(payload);
 
         return ResponseEntity.ok().build();
+    }
+
+    @GetMapping("/exclusive-post/{exclusivePostId}")
+    public ResponseEntity<CommentsResponseDTO> findAllComments(
+            @PathVariable("exclusivePostId") UUID exclusivePostId,
+            @RequestParam(value = "page", defaultValue = "0") Integer page) {
+        Pageable pageRequest = PageRequest.of(page, 20, Sort.Direction.valueOf("ASC"), "createdAt");
+
+        CommentsResponseDTO comments = this.commentService.findAllComments(exclusivePostId, pageRequest);
+
+        return ResponseEntity.ok(comments);
+    }
+
+    @GetMapping("/{commentId}/comments-reply")
+    public ResponseEntity<CommentsReplyResponseDTO> findAllCommentsReply(
+            @PathVariable("commentId") UUID commentId,
+            @RequestParam(value = "page", defaultValue = "0") Integer page) {
+        Pageable pageRequest = PageRequest.of(page, 5, Sort.Direction.valueOf("ASC"), "createdAt");
+
+        CommentsReplyResponseDTO commentsReply = this.commentService.findAllCommentsReply(commentId, pageRequest);
+
+        return ResponseEntity.ok(commentsReply);
     }
 
 }

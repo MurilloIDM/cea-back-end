@@ -28,6 +28,7 @@ public class ExclusivePostService {
     private final PollTopicsRepository pollTopicsRepository;
     private final StudentRepository studentRepository;
     private final StudentVotesRepository studentVotesRepository;
+    private final CommentRepository commentRepository;
     private final PollTopicsService pollTopicsService;
     private final StudentService studentService;
     private final CommentService commentService;
@@ -177,6 +178,10 @@ public class ExclusivePostService {
 
                 exclusivePost.setPollTopics(pollTopicsWithPercentage);
             }
+
+            List<Comment> comments = this.commentRepository.findAllByExclusivePost_IdAndStatusTrue(id);
+            int totalComments = comments.size();
+            exclusivePost.setTotalComments(totalComments);
 
             posts.add(exclusivePost);
         }
