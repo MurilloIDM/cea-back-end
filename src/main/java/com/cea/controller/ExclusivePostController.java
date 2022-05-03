@@ -96,4 +96,11 @@ public class ExclusivePostController extends BasicController {
         return ResponseEntity.ok(exclusivePost);
     }
 
+    @PatchMapping("/{exclusivePostId}")
+    public ResponseEntity inativeExclusivePost(@PathVariable("exclusivePostId") UUID exclusivePostId) {
+        this.exclusivePostService.inativeExclusivePost(exclusivePostId);
+
+        return ResponseEntity.ok().build();
+    }
+
 }

@@ -194,7 +194,17 @@ public class CommentService {
             comment.get().setStatus(false);
             this.commentRepository.save(comment.get());
         }
+    }
 
+    public void inativeCommentsByExclusivePostId(UUID exclusivePostId) {
+        List<Comment> comments = this.commentRepository.findAllByExclusivePost_IdAndStatusTrue(exclusivePostId);
+
+        for (Comment comment : comments) {
+            this.commentReplyService.inativeCommentReplyOfComment(comment.getId());
+
+            comment.setStatus(false);
+            this.commentRepository.save(comment);
+        }
     }
 
 }

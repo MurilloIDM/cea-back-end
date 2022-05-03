@@ -30,6 +30,7 @@ public class ExclusivePostService {
     private final StudentVotesRepository studentVotesRepository;
     private final PollTopicsService pollTopicsService;
     private final StudentService studentService;
+    private final CommentService commentService;
     private final LocalDateTimeUtils localDateTimeUtils;
 
     public void createContent(ContentDTO payload) {
@@ -318,6 +319,28 @@ public class ExclusivePostService {
 
         return response;
     }
+
+    public void inativeExclusivePost(UUID exclusivePostId) {
+        Optional<ExclusivePost> exclusivePost = this.exclusivePostRepository.findById(exclusivePostId);
+
+        if (exclusivePost.isEmpty()) {
+            throw new HttpClientErrorException(HttpStatus.BAD_REQUEST, "Conteúdo exclusivo não encontrado!");
+        }
+
+        if (exclusivePost.get().getType().name().equalsIgnoreCase("TEXT")) {
+            this.inativeContent(exclusivePostId);
+        }
+
+        exclusivePost.get().setStatus(false);
+        exclusivePost.get().setFiled(true);
+
+        this.exclusivePostRepository.save(exclusivePost.get());
+    }
+
+    private void inativeContent(UUID exclusivePostId) {
+        this.commentService.inativeCommentsByExclusivePostId(exclusivePostId);
+    }
+
 
     private Boolean getStatusPost(String statusValue) {
         return (statusValue.equalsIgnoreCase("active")) ? true : false;
