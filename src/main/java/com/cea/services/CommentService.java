@@ -2,6 +2,7 @@ package com.cea.services;
 
 import com.cea.dto.comment.CommentDTO;
 import com.cea.dto.comment.CommentReplyDTO;
+import com.cea.dto.comment.CommentReplyInativeDTO;
 import com.cea.models.*;
 import com.cea.repository.*;
 import com.cea.utils.LocalDateTimeUtils;
@@ -62,7 +63,6 @@ public class CommentService {
 
     public void addCommentReply(CommentReplyDTO payload) {
         boolean isAdmin = false;
-        boolean isStudent = true;
 
         Optional<Student> student = null;
         Optional<Administrator> administrator = null;
@@ -80,7 +80,6 @@ public class CommentService {
             }
 
             isAdmin = true;
-            isStudent = false;
         }
 
         Optional<Comment> comment = this.commentRepository.findById(commentId);
@@ -111,6 +110,45 @@ public class CommentService {
         }
 
         this.commentReplyRepository.save(commentReply);
+    }
+
+    public void inativeCommentReply(CommentReplyInativeDTO payload) {
+        boolean isAdmin = false;
+
+        UUID userId = payload.getUserId();
+        UUID commentReplyId = payload.getCommentReplyId();
+
+        Optional<Student> student = null;
+        Optional<CommentReply> commentReply = null;
+        Optional<Administrator> administrator = null;
+
+        student = this.studentRepository.findById(userId);
+
+        if (student.isEmpty()) {
+            administrator = this.administratorRepository.findById(userId);
+
+            if (administrator.isEmpty()) {
+                throw new HttpClientErrorException(HttpStatus.BAD_REQUEST, "Estudante/Administrator não encontrado!");
+            }
+
+            isAdmin = true;
+        }
+
+        if (isAdmin) {
+            commentReply = this.commentReplyRepository.findByIdAndAdministrator(commentReplyId, administrator.get());
+        } else {
+            commentReply = this.commentReplyRepository.findByIdAndStudent(commentReplyId, student.get());
+        }
+
+        if (commentReply.isEmpty()) {
+            throw new HttpClientErrorException(
+                    HttpStatus.BAD_REQUEST,
+                    "Ação inválida! Essa resposta não foi encontrada ou não pertence ao usuário informado!");
+        }
+
+        commentReply.get().setStatus(false);
+
+        this.commentReplyRepository.save(commentReply.get());
     }
 
 }
