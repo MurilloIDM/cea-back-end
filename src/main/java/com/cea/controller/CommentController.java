@@ -1,6 +1,7 @@
 package com.cea.controller;
 
 import com.cea.dto.comment.CommentDTO;
+import com.cea.dto.comment.CommentInativeDTO;
 import com.cea.dto.comment.CommentReplyDTO;
 import com.cea.dto.comment.CommentReplyInativeDTO;
 import com.cea.services.CommentService;
@@ -36,6 +37,11 @@ public class CommentController extends BasicController {
     public ResponseEntity inativeCommentReply(
             @RequestBody @Valid CommentReplyInativeDTO payload) {
         this.commentService.inativeCommentReply(payload);
+    }
+    
+    @PatchMapping("/")
+    public ResponseEntity inativeComment(@RequestBody @Valid CommentInativeDTO payload) {
+        this.commentService.inativeComment(payload);
 
         return ResponseEntity.ok().build();
     }
