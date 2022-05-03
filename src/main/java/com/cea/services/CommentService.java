@@ -1,6 +1,7 @@
 package com.cea.services;
 
 import com.cea.dto.comment.CommentDTO;
+import com.cea.dto.comment.CommentInativeDTO;
 import com.cea.dto.comment.CommentReplyDTO;
 import com.cea.dto.comment.CommentReplyInativeDTO;
 import com.cea.models.*;
@@ -12,6 +13,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.HttpClientErrorException;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -25,6 +27,7 @@ public class CommentService {
     private final StudentRepository studentRepository;
     private final AdministratorRepository administratorRepository;
     private final StudentService studentService;
+    private final CommentReplyService commentReplyService;
     private final LocalDateTimeUtils localDateTimeUtils;
 
 
@@ -149,6 +152,49 @@ public class CommentService {
         commentReply.get().setStatus(false);
 
         this.commentReplyRepository.save(commentReply.get());
+    }
+
+    public void inativeComment(CommentInativeDTO payload) {
+        boolean isAdmin = false;
+
+        UUID userId = payload.getUserId();
+        UUID commentId = payload.getCommentId();
+
+        Optional<Student> student = null;
+        Optional<Comment> comment = null;
+        Optional<Administrator> administrator = null;
+
+        student = this.studentRepository.findById(userId);
+
+        if (student.isEmpty()) {
+            administrator = this.administratorRepository.findById(userId);
+
+            if (administrator.isEmpty()) {
+                throw new HttpClientErrorException(HttpStatus.BAD_REQUEST, "Estudante/Administrator não encontrado!");
+            }
+
+            isAdmin = true;
+        }
+
+        if (isAdmin) {
+            comment = this.commentRepository.findById(commentId);
+        } else {
+            comment = this.commentRepository.findByIdAndStudent(commentId, student.get());
+        }
+
+        if (comment.isEmpty()) {
+            throw new HttpClientErrorException(
+                    HttpStatus.BAD_REQUEST,
+                    "Ação inválida! Esse comentário não foi encontrado ou não pertence ao usuário informado!");
+        }
+
+        if (comment.get().isStatus()) {
+            this.commentReplyService.inativeCommentReplyOfComment(commentId);
+
+            comment.get().setStatus(false);
+            this.commentRepository.save(comment.get());
+        }
+
     }
 
 }
