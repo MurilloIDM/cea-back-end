@@ -2,15 +2,14 @@ package com.cea.controller;
 
 import com.cea.dto.comment.CommentDTO;
 import com.cea.dto.comment.CommentReplyDTO;
+import com.cea.dto.comment.CommentReplyInativeDTO;
 import com.cea.services.CommentService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/comments")
@@ -29,6 +28,14 @@ public class CommentController extends BasicController {
     @PostMapping("/reply/create")
     public ResponseEntity addCommentReply(@RequestBody @Valid CommentReplyDTO payload) {
         this.commentService.addCommentReply(payload);
+
+        return ResponseEntity.ok().build();
+    }
+
+    @PatchMapping("/reply")
+    public ResponseEntity inativeCommentReply(
+            @RequestBody @Valid CommentReplyInativeDTO payload) {
+        this.commentService.inativeCommentReply(payload);
 
         return ResponseEntity.ok().build();
     }
