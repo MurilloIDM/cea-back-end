@@ -28,6 +28,7 @@ public class ExclusivePostWithMediaOrPollTopicsDTO {
     private LocalDateTime updatedAt;
     private String createdBy;
     private String updatedBy;
+    private int totalComments;
     private List<Media> media = new ArrayList<Media>();
     private List<PollTopicsPercentageDTO> pollTopics = new ArrayList<PollTopicsPercentageDTO>();
 

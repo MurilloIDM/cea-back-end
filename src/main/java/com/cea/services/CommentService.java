@@ -1,18 +1,18 @@
 package com.cea.services;
 
-import com.cea.dto.comment.CommentDTO;
-import com.cea.dto.comment.CommentInativeDTO;
-import com.cea.dto.comment.CommentReplyDTO;
-import com.cea.dto.comment.CommentReplyInativeDTO;
+import com.cea.dto.comment.*;
 import com.cea.models.*;
 import com.cea.repository.*;
 import com.cea.utils.LocalDateTimeUtils;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.HttpClientErrorException;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -205,6 +205,63 @@ public class CommentService {
             comment.setStatus(false);
             this.commentRepository.save(comment);
         }
+    }
+
+    public CommentsResponseDTO findAllComments(UUID exclusivePostId, Pageable pageRequest) {
+        Optional<ExclusivePost> exclusivePost = this.exclusivePostRepository.findById(exclusivePostId);
+
+        if (exclusivePost.isEmpty()) {
+            throw new HttpClientErrorException(HttpStatus.BAD_REQUEST, "Conteúdo exclusivo não encontrado!");
+        }
+
+        List<CommentResponseDTO> commentsResponse = new ArrayList<>();
+        Page<Comment> pageResult = this.commentRepository.findAllByExclusivePost_IdAndStatusTrue(
+                exclusivePostId, pageRequest);
+        List<Comment> comments = pageResult.getContent();
+
+        for (Comment comment : comments) {
+            List<CommentReply> commentsReply = this.commentReplyService.findByCommentId(comment.getId());
+            int totalCommentsReply = commentsReply.size();
+
+            CommentResponseDTO commentResponse = CommentResponseDTO.toDTO(comment);
+            commentResponse.setTotalCommentsReply(totalCommentsReply);
+
+            commentsResponse.add(commentResponse);
+        }
+
+        CommentsResponseDTO response = new CommentsResponseDTO();
+        response.setContent(commentsResponse);
+        response.setSize(pageResult.getSize());
+        response.setTotalPages(pageResult.getTotalPages());
+        response.setTotalElements(pageResult.getTotalElements());
+
+        return response;
+    }
+
+    public CommentsReplyResponseDTO findAllCommentsReply(UUID commentId, Pageable pageRequest) {
+        Optional<Comment> comment = this.commentRepository.findById(commentId);
+
+        if (comment.isEmpty()) {
+            throw new HttpClientErrorException(HttpStatus.BAD_REQUEST, "Comentário não encontrado!");
+        }
+
+        List<CommentReplyResponseDTO> content = new ArrayList<>();
+        Page<CommentReply> commentsReplyResponse = this.commentReplyRepository.findAllByCommentIdAndStatusTrue(
+                commentId, pageRequest);
+        List<CommentReply> commentsReply = commentsReplyResponse.getContent();
+
+        for (CommentReply commentReply : commentsReply) {
+            CommentReplyResponseDTO commentReplyResponse = CommentReplyResponseDTO.toDTO(commentReply);
+            content.add(commentReplyResponse);
+        }
+
+        CommentsReplyResponseDTO response = new CommentsReplyResponseDTO();
+        response.setContent(content);
+        response.setSize(commentsReplyResponse.getSize());
+        response.setTotalPages(commentsReplyResponse.getTotalPages());
+        response.setTotalElements(commentsReplyResponse.getTotalElements());
+
+        return response;
     }
 
 }
