@@ -71,41 +71,4 @@ public class StudentController extends BasicController {
         this.studentService.updatePassword(payload);
     }
 
-    @GetMapping("/")
-    public ResponseEntity<Page<Student>> findAllByPage(
-            @RequestParam(value = "page", defaultValue = "0") Integer page,
-            @RequestParam(value = "linesPerPage", defaultValue = "10") Integer linesPerPage,
-            @RequestParam(value = "direction", defaultValue = "ASC") String direction,
-            @RequestParam(value = "orderBy", defaultValue = "name") String orderBy,
-            @RequestParam(value = "name", defaultValue = "") String name,
-            @RequestParam(value = "status", defaultValue = "all") String status) {
-        Pageable pageRequest = PageRequest.of(page, linesPerPage, Sort.Direction.valueOf(direction), orderBy);
-
-        Page<Student> students = this.studentService.findAllByPage(name, status, pageRequest);
-        return ResponseEntity.ok().body(students);
-    }
-
-    @GetMapping("/{id}")
-    public ResponseEntity<Student> findById(@PathVariable("id") UUID id) {
-        Student student = this.studentService.findById(id);
-
-        return ResponseEntity.ok(student);
-    }
-
-    @PatchMapping("/{id}")
-    public ResponseEntity updateSocialName(
-            @PathVariable("id") UUID id,
-            @RequestBody @Valid StudentSocialNameDTO payload) {
-        this.studentService.updateSocialName(id, payload);
-
-        return ResponseEntity.ok().build();
-    }
-
-    @PostMapping("/upload")
-    public ResponseEntity<List<StudentUploadDTO>> importStudents(@RequestParam("file")MultipartFile file) {
-        List<StudentUploadDTO> operations = this.studentService.importStudents(file);
-
-        return ResponseEntity.ok(operations);
-    }
-
 }

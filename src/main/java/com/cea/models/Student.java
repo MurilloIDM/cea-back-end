@@ -1,9 +1,11 @@
 package com.cea.models;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.factory.PasswordEncoderFactories;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
@@ -13,6 +15,7 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
+import java.util.Collection;
 import java.util.UUID;
 
 @Data
@@ -20,7 +23,7 @@ import java.util.UUID;
 @NoArgsConstructor
 @Entity
 @Table(name = "tb_student")
-public class Student implements Serializable {
+public class Student implements Serializable, UserDetails {
 
     private static final long serialVersionUID = 1L;
 
@@ -29,7 +32,7 @@ public class Student implements Serializable {
     private UUID id;
     private String name;
     private String socialName;
-    @JsonIgnore
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private String password;
     private String email;
     private String phoneNumber;
@@ -84,4 +87,33 @@ public class Student implements Serializable {
         return amountDays >= 0 && amountDays <= 30 ? true : false;
     }
 
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        return null;
+    }
+
+    @Override
+    public String getUsername() {
+        return this.email;
+    }
+
+    @Override
+    public boolean isAccountNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isAccountNonLocked() {
+        return true;
+    }
+
+    @Override
+    public boolean isCredentialsNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isEnabled() {
+        return true;
+    }
 }

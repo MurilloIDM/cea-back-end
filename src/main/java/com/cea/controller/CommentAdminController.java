@@ -13,18 +13,11 @@ import javax.validation.Valid;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/comments")
+@RequestMapping("/admin/comments")
 @RequiredArgsConstructor
-public class CommentController extends BasicController {
+public class CommentAdminController {
 
     private final CommentService commentService;
-
-    @PostMapping("/create")
-    public ResponseEntity addComment(@RequestBody @Valid CommentDTO payload) {
-        this.commentService.addComment(payload);
-
-        return ResponseEntity.ok().build();
-    }
 
     @PostMapping("/reply/create")
     public ResponseEntity addCommentReply(@RequestBody @Valid CommentReplyDTO payload) {
@@ -40,7 +33,7 @@ public class CommentController extends BasicController {
 
         return ResponseEntity.ok().build();
     }
-    
+
     @PatchMapping("/")
     public ResponseEntity inativeComment(@RequestBody @Valid CommentInativeDTO payload) {
         this.commentService.inativeComment(payload);
@@ -69,5 +62,4 @@ public class CommentController extends BasicController {
 
         return ResponseEntity.ok(commentsReply);
     }
-
 }

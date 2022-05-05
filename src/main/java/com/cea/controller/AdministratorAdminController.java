@@ -31,9 +31,9 @@ import com.cea.services.AdministratorService;
 import javax.validation.Valid;
 
 @RestController
-@RequestMapping("/administrators")
+@RequestMapping("/admin/administrators")
 @RequiredArgsConstructor
-public class AdministratorController extends BasicController {
+public class AdministratorAdminController extends BasicController {
 
 	private final AdministratorService administratorService;
 	
