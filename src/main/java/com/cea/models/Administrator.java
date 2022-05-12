@@ -1,6 +1,7 @@
 package com.cea.models;
 
 import java.io.Serializable;
+import java.util.Collection;
 import java.util.Date;
 import java.util.UUID;
 
@@ -12,9 +13,12 @@ import javax.persistence.Table;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.factory.PasswordEncoderFactories;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
@@ -23,7 +27,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 @NoArgsConstructor
 @Entity
 @Table(name = "tb_administrator")
-public class Administrator implements Serializable {
+public class Administrator implements Serializable, UserDetails {
 
 	private static final long serialVersionUID = 1L;
 	
@@ -33,7 +37,7 @@ public class Administrator implements Serializable {
 	private UUID id;
 	private String name;
 	private String username;
-	@JsonIgnore
+	@JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
 	private String password;
 	private Boolean roles;
 	private Boolean isPrimaryAccess;
@@ -47,4 +51,26 @@ public class Administrator implements Serializable {
 		return passwordEncoder.encode(password);
 	}
 
+	@Override
+	public Collection<? extends GrantedAuthority> getAuthorities() { return null; }
+
+	@Override
+	public boolean isAccountNonExpired() {
+		return true;
+	}
+
+	@Override
+	public boolean isAccountNonLocked() {
+		return true;
+	}
+
+	@Override
+	public boolean isCredentialsNonExpired() {
+		return true;
+	}
+
+	@Override
+	public boolean isEnabled() {
+		return true;
+	}
 }

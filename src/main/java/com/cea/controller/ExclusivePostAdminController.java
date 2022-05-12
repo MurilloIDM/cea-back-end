@@ -16,9 +16,9 @@ import javax.validation.Valid;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/exclusive-posts")
+@RequestMapping("/admin/exclusive-posts")
 @RequiredArgsConstructor
-public class ExclusivePostController extends BasicController {
+public class ExclusivePostAdminController extends BasicController {
 
     private final ExclusivePostService exclusivePostService;
 
@@ -55,21 +55,6 @@ public class ExclusivePostController extends BasicController {
         return ResponseEntity.ok().body(exclusivePosts);
     }
 
-    @GetMapping("/content")
-    public ResponseEntity<PageExclusivePostDTO> findAllPageWithRelation(
-            @RequestParam(value = "page", defaultValue = "0") Integer page,
-            @RequestParam(value = "linesPerPage", defaultValue = "10") Integer linesPerPage,
-            @RequestParam(value = "direction", defaultValue = "ASC") String direction,
-            @RequestParam(value = "orderBy", defaultValue = "createdAt") String orderBy,
-            @RequestParam(value = "studentId", defaultValue = "") UUID studentId) {
-        Pageable pageRequest = PageRequest.of(page, linesPerPage, Sort.Direction.valueOf(direction), orderBy);
-
-        PageExclusivePostDTO exclusivePosts = this.exclusivePostService
-                .findAllExclusivePostWithMediaOrPollTopics(studentId, pageRequest);
-
-        return ResponseEntity.ok(exclusivePosts);
-    }
-
     @PutMapping("/content/{id}")
     public ResponseEntity updateContent(
             @PathVariable("id") UUID id,
@@ -86,14 +71,6 @@ public class ExclusivePostController extends BasicController {
         this.exclusivePostService.updateSurvey(id, payload);
 
         return ResponseEntity.ok().build();
-    }
-    
-    @PostMapping("/survey/vote")
-    public ResponseEntity<ExclusivePostWithMediaOrPollTopicsDTO> addVoteSurvey(
-            @RequestBody @Valid StudentVotesDTO payload) {
-        ExclusivePostWithMediaOrPollTopicsDTO exclusivePost = this.exclusivePostService.addVotes(payload);
-
-        return ResponseEntity.ok(exclusivePost);
     }
 
     @PatchMapping("/{exclusivePostId}")

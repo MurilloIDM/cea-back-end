@@ -12,9 +12,9 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/poll-topics")
+@RequestMapping("/admin/poll-topics")
 @RequiredArgsConstructor
-public class PollTopicsController extends BasicController {
+public class PollTopicsAdminController extends BasicController {
 
     private final PollTopicsService pollTopicsService;
 

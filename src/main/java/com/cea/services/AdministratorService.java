@@ -40,9 +40,7 @@ public class AdministratorService {
 		}
 		
 		String password = this.generatePassword();
-		
-		BCryptPasswordEncoder bCrypt = new BCryptPasswordEncoder();
-		String passwordHash = bCrypt.encode(password);
+		String passwordHash = administrator.encryptPassword(password);
 		
 		administrator.setPassword(passwordHash);
 		

@@ -13,9 +13,9 @@ import java.util.List;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/media")
+@RequestMapping("/admin/media")
 @RequiredArgsConstructor
-public class MediaController extends BasicController {
+public class MediaAdminController extends BasicController {
 
     private final MediaService mediaService;
 
