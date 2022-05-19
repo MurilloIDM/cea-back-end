@@ -235,7 +235,14 @@ public class ExclusivePostService {
             throw new HttpClientErrorException(HttpStatus.BAD_REQUEST, "O tipo não corresponde ao de enquete!");
         }
 
-        if (payload.getPollTopics().size() < 2 || payload.getPollTopics().size() > 5) {
+        int lengthTopics = 0;
+        for (PollTopicsDTO pollTopic : payload.getPollTopics()) {
+            if (!pollTopic.isRemove()) {
+                lengthTopics++;
+            }
+        }
+
+        if (lengthTopics < 2 || lengthTopics > 5) {
             throw new HttpClientErrorException(
                     HttpStatus.BAD_REQUEST, "Deve haver no mínimo 2 e no máximo 5 tópicos por enquete!");
         }
