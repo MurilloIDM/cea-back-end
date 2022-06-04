@@ -1,9 +1,9 @@
 package com.cea.controller;
 
+import com.cea.dto.leads.ResponsePageLeadsDTO;
 import com.cea.models.Lead;
 import com.cea.services.LeadService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -29,13 +29,13 @@ public class LeadAdminController {
     }
 
     @GetMapping("/")
-    public ResponseEntity<Page<Lead>> findAllByPage(
+    public ResponseEntity<ResponsePageLeadsDTO> findAllByPage(
             @RequestParam(value = "page", defaultValue = "0") Integer page,
             @RequestParam(value = "linesPerPage", defaultValue = "10") Integer linesPerPage,
             @RequestParam(value = "direction", defaultValue = "ASC") String direction,
             @RequestParam(value = "orderBy", defaultValue = "createdAt") String orderBy) {
         Pageable pageRequest = PageRequest.of(page, linesPerPage, Sort.Direction.valueOf(direction), orderBy);
-        Page<Lead> leads = this.leadService.findAllByPage(pageRequest);
+        ResponsePageLeadsDTO leads = this.leadService.findAllByPage(pageRequest);
         return ResponseEntity.ok().body(leads);
     }
 

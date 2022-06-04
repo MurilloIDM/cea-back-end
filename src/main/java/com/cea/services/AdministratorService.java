@@ -93,7 +93,7 @@ public class AdministratorService {
 		if (!name.equals("")) {
 
 			return this.administratorRepository
-			.findByNameContaining(name, pageRequest);
+			.findByIgnoreCaseNameContaining(name, pageRequest);
 		}
 
 		return this.administratorRepository.findAll(pageRequest);

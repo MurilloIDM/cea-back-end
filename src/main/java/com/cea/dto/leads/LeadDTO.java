@@ -1,4 +1,4 @@
-package com.cea.dto;
+package com.cea.dto.leads;
 
 import java.io.Serializable;
 import java.util.Date;
@@ -24,14 +24,11 @@ public class LeadDTO implements Serializable {
 
 	public Lead toEntity() {
 
-		Date date = new Date();
-
 		Lead lead = new Lead();
 
 		lead.setName(this.name);
 		lead.setEmail(this.email);
 		lead.setPhone(this.phone);
-		lead.setCreatedAt(date);
 		lead.setDeviceId(deviceId);
 
 		return lead;

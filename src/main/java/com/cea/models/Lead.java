@@ -1,6 +1,7 @@
 package com.cea.models;
 
 import java.io.Serializable;
+import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.UUID;
 
@@ -30,7 +31,7 @@ public class Lead implements Serializable {
 	private String name;
 	private String email;
 	private String phone;
-	private Date createdAt;
+	private LocalDateTime createdAt;
 	@Column(name = "deviceId")
 	private UUID deviceId;
 }

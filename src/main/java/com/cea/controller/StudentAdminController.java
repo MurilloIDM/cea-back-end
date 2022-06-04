@@ -1,5 +1,6 @@
 package com.cea.controller;
 
+import com.cea.dto.students.ResponsePageStudentsDTO;
 import com.cea.dto.students.StudentSocialNameDTO;
 import com.cea.dto.students.StudentUploadDTO;
 import com.cea.models.Student;
@@ -27,7 +28,7 @@ public class StudentAdminController {
     private final StudentService studentService;
 
     @GetMapping("/")
-    public ResponseEntity<Page<Student>> findAllByPage(
+    public ResponseEntity<ResponsePageStudentsDTO> findAllByPage(
             @RequestParam(value = "page", defaultValue = "0") Integer page,
             @RequestParam(value = "linesPerPage", defaultValue = "10") Integer linesPerPage,
             @RequestParam(value = "direction", defaultValue = "ASC") String direction,
@@ -36,7 +37,7 @@ public class StudentAdminController {
             @RequestParam(value = "status", defaultValue = "all") String status) {
         Pageable pageRequest = PageRequest.of(page, linesPerPage, Sort.Direction.valueOf(direction), orderBy);
 
-        Page<Student> students = this.studentService.findAllByPage(name, status, pageRequest);
+        ResponsePageStudentsDTO students = this.studentService.findAllByPage(name, status, pageRequest);
         return ResponseEntity.ok().body(students);
     }
 

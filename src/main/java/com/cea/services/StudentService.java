@@ -1,14 +1,12 @@
 package com.cea.services;
 
-import com.cea.dto.students.IsStudentDTO;
+import com.cea.dto.students.*;
 import com.cea.dto.createAndUpdatePassword.RegisterPasswordDTO;
 import com.cea.dto.createAndUpdatePassword.UpdatePasswordDTO;
 import com.cea.dto.externalPlatform.ResponseDataClientDTO;
 import com.cea.dto.externalPlatform.StudentInPlatformDTO;
 import com.cea.dto.resetPassword.ResponseValidateTokenDTO;
 import com.cea.dto.resetPassword.ValidateTokenDTO;
-import com.cea.dto.students.StudentSocialNameDTO;
-import com.cea.dto.students.StudentUploadDTO;
 import com.cea.models.Lead;
 import com.cea.models.Student;
 import com.cea.models.StudentCSV;
@@ -234,7 +232,7 @@ public class StudentService {
         }
     }
 
-    public Page<Student> findAllByPage(String name, String status, Pageable pageRequest) {
+    public ResponsePageStudentsDTO findAllByPage(String name, String status, Pageable pageRequest) {
         Page<Student> studentsPage = null;
 
         if (!name.equals("")) {
@@ -277,7 +275,25 @@ public class StudentService {
             }
         }
 
-        return studentsPage;
+        List<Student> contentInPage = studentsPage.getContent();
+
+        List<ResponseStudentDTO> contentResponse = new ArrayList<>();
+        for (Student student : contentInPage) {
+            ResponseStudentDTO responseStudentDTO = new ResponseStudentDTO();
+            responseStudentDTO.setId(student.getId());
+            responseStudentDTO.setName(student.getName());
+            responseStudentDTO.setStatus(student.isStatus());
+            responseStudentDTO.setSocialName(student.getSocialName());
+            responseStudentDTO.setExpirationDate(student.getExpirationDate());
+            responseStudentDTO.setInactivationSoon(student.isInactivationSoon());
+        }
+
+        int size = studentsPage.getSize();
+        int totalPages = studentsPage.getTotalPages();
+        long totalElements = studentsPage.getTotalElements();
+        ResponsePageStudentsDTO response = new ResponsePageStudentsDTO(size, totalPages, totalElements, contentResponse);
+
+        return response;
     }
 
     public Student findById(UUID id) {
