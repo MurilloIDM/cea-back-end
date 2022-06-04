@@ -1,6 +1,6 @@
 package com.cea.controller;
 
-import com.cea.dto.FreePostDTO;
+import com.cea.dto.freePosts.FreePostDTO;
 import com.cea.models.FreePost;
 import com.cea.models.HistoricStatusFreePost;
 import com.cea.services.FreePostService;

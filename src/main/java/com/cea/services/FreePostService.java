@@ -14,7 +14,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.HttpClientErrorException;
 
-import com.cea.dto.FreePostDTO;
+import com.cea.dto.freePosts.FreePostDTO;
 import com.cea.models.FreePost;
 import com.cea.models.HistoricStatusFreePost;
 import com.cea.repository.FreePostRepository;
@@ -58,7 +58,7 @@ public class FreePostService {
 
 	public Page<FreePost> findAllPaged(String title, String status, Pageable pageRequest) {
 		if (!title.equals("") && (status.equals("") || status.equals("all")))
-			return freePostRepository.findByTitleContaining(title, pageRequest);
+			return freePostRepository.findByIgnoreCaseTitleContaining(title, pageRequest);
 
 		if (!status.equals("") && !status.equals("all") && title.equals("")) {
 			Boolean statusBoolean = status.equals("online") ? true : false;
@@ -67,7 +67,7 @@ public class FreePostService {
 
 		if (!status.equals("") && !status.equals("all") && !title.equals("")) {
 			Boolean statusBoolean = status.equals("online") ? true : false;
-			return freePostRepository.findByTitleContainingAndStatusIs(title, statusBoolean, pageRequest);
+			return freePostRepository.findByIgnoreCaseTitleContainingAndStatusIs(title, statusBoolean, pageRequest);
 		}
 
 		return freePostRepository.findAll(pageRequest);

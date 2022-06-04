@@ -13,6 +13,6 @@ import org.springframework.stereotype.Repository;
 public interface AdministratorRepository extends JpaRepository<Administrator, UUID> {
 	
 	Administrator findByUsername(String username);
-	Page<Administrator> findByNameContaining(String name, Pageable pageRequest);
+	Page<Administrator> findByIgnoreCaseNameContaining(String name, Pageable pageRequest);
 	
 }
