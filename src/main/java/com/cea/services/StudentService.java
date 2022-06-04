@@ -286,6 +286,8 @@ public class StudentService {
             responseStudentDTO.setSocialName(student.getSocialName());
             responseStudentDTO.setExpirationDate(student.getExpirationDate());
             responseStudentDTO.setInactivationSoon(student.isInactivationSoon());
+
+            contentResponse.add(responseStudentDTO);
         }
 
         int size = studentsPage.getSize();
