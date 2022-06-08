@@ -68,7 +68,7 @@ public class JWTAuthenticateFilterStudent extends UsernamePasswordAuthentication
                 .sign(Algorithm.HMAC512(TOKEN_PASS));
 
         Gson gson = new Gson();
-        AccessTokenDTO accessToken = new AccessTokenDTO(token);
+        AccessTokenDTO accessToken = new AccessTokenDTO(student.getId(), token);
 
         String accessTokenJson = gson.toJson(accessToken);
 
