@@ -63,7 +63,7 @@ public class CommentAppController extends BasicController {
     public ResponseEntity<CommentsReplyResponseDTO> findAllCommentsReply(
             @PathVariable("commentId") UUID commentId,
             @RequestParam(value = "page", defaultValue = "0") Integer page) {
-        Pageable pageRequest = PageRequest.of(page, 5, Sort.Direction.valueOf("DESC"), "createdAt");
+        Pageable pageRequest = PageRequest.of(page, 5, Sort.Direction.valueOf("ASC"), "createdAt");
 
         CommentsReplyResponseDTO commentsReply = this.commentService.findAllCommentsReply(commentId, pageRequest);
 
