@@ -119,8 +119,26 @@ public class StudentService {
                     "Estudante com acesso expirado ou não iniciado!");
         }
 
+        List<StudentTokens> studentTokens = this.studentTokensRepository
+                .findByStudentOrderByExpiresDateDesc(student.get());
+
         String token = StudentTokens.generateToken();
         LocalDateTime expiresDate = this.localDateTimeUtils.addMinutes(dateNow, 90);
+
+        if (studentTokens.size() >= 3) {
+            long diffTime = this.localDateTimeUtils.diffDateInMinutes(
+                    studentTokens.get(0).getExpiresDate(),
+                    expiresDate
+            );
+
+            if (diffTime < 5) {
+                throw new HttpClientErrorException(
+                        HttpStatus.BAD_REQUEST,
+                        "Nos últimos minutos foram realizados 3 envios de tokens de recuperação! Aguarde 5 " +
+                                "minutos para solicitar um novo token."
+                );
+            }
+        }
 
         StudentTokens studentToken = new StudentTokens(null, token, expiresDate, student.get());
         this.studentTokensRepository.save(studentToken);
@@ -145,7 +163,7 @@ public class StudentService {
         }
 
         List<StudentTokens> studentTokens = this.studentTokensRepository
-                .findDistinctByTokenAndStudentOrderByExpiresDateDesc(token, student.get());
+                .findByStudentOrderByExpiresDateDesc(student.get());
 
         if (studentTokens.size() == 0) {
             throw new HttpClientErrorException(HttpStatus.BAD_REQUEST, "Token inválido!");
@@ -161,8 +179,12 @@ public class StudentService {
             throw new HttpClientErrorException(HttpStatus.BAD_REQUEST, "Token expirado!");
         }
 
+        if (!studentToken.getToken().equals(token)) {
+            throw new HttpClientErrorException(HttpStatus.BAD_REQUEST, "Token inválido!");
+        }
+
         if (withDelete) {
-            this.studentTokensRepository.delete(studentToken);
+            this.studentTokensRepository.deleteAll(studentTokens);
         }
 
         return new ResponseValidateTokenDTO(true);
