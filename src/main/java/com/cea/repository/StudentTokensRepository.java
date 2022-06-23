@@ -11,6 +11,6 @@ import java.util.UUID;
 @Repository
 public interface StudentTokensRepository extends JpaRepository<StudentTokens, UUID> {
 
-    List<StudentTokens> findDistinctByTokenAndStudentOrderByExpiresDateDesc(String token, Student student);
+    List<StudentTokens> findByStudentOrderByExpiresDateDesc(Student student);
 
 }

@@ -38,4 +38,10 @@ public class LocalDateTimeUtils {
 
         return dateTime;
     }
+
+    public long diffDateInMinutes(LocalDateTime dateFirst, LocalDateTime dateLast) {
+        Duration diffTime = Duration.between(dateFirst, dateLast);
+
+        return diffTime.toMinutes();
+    }
 }
