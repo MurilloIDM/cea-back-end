@@ -11,5 +11,6 @@ import java.util.UUID;
 public interface PollTopicsRepository extends JpaRepository<PollTopics, UUID> {
 
     List<PollTopics> findByExclusivePost_Id(UUID exclusivePostId);
+    List<PollTopics> findByExclusivePost_IdOrderByUpdatedAtAsc(UUID exclusivePostId);
 
 }

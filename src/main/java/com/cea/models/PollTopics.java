@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 import java.io.Serializable;
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Data
@@ -28,5 +29,6 @@ public class PollTopics implements Serializable {
     @JoinColumn(name = "exclusive_post_id", nullable = false)
     @JsonIgnore
     private ExclusivePost exclusivePost;
+    private LocalDateTime updatedAt;
 
 }

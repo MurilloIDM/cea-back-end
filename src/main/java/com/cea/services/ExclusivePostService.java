@@ -87,6 +87,7 @@ public class ExclusivePostService {
             PollTopics pollTopics = new PollTopics();
             pollTopics.setDescription(pollTopic.getDescription());
             pollTopics.setExclusivePost(exclusivePost);
+            pollTopics.setUpdatedAt(dateNow);
 
             this.pollTopicsRepository.save(pollTopics);
         }
@@ -170,7 +171,7 @@ public class ExclusivePostService {
             }
 
             if (typePost.name().equals("SURVEY")) {
-                List<PollTopics> pollTopics = this.pollTopicsRepository.findByExclusivePost_Id(id);
+                List<PollTopics> pollTopics = this.pollTopicsRepository.findByExclusivePost_IdOrderByUpdatedAtAsc(id);
 
                 int totalVotes = this.pollTopicsService.getTotalVotes(pollTopics);
                 List<PollTopicsPercentageDTO> pollTopicsWithPercentage = this.pollTopicsService
@@ -260,6 +261,8 @@ public class ExclusivePostService {
                     "Enquete que já possui votos não pode ter tópicos atualizados ou adicionados!");
         }
 
+        LocalDateTime dateNow = this.localDateTimeUtils.dateNow();
+
         for (PollTopicsDTO pollTopic : payload.getPollTopics()) {
             if (pollTopic.isRemove()) {
                 this.pollTopicsRepository.deleteById(pollTopic.getId());
@@ -270,6 +273,7 @@ public class ExclusivePostService {
             pollTopics.setId(pollTopic.getId());
             pollTopics.setDescription(pollTopic.getDescription());
             pollTopics.setExclusivePost(exclusivePost.get());
+            pollTopics.setUpdatedAt(dateNow);
 
             this.pollTopicsRepository.save(pollTopics);
         }
@@ -321,7 +325,8 @@ public class ExclusivePostService {
         ExclusivePostWithMediaOrPollTopicsDTO response = ExclusivePostWithMediaOrPollTopicsDTO
                 .toDTO(exclusivePost.get());
 
-        List<PollTopics> pollTopicsInPost = this.pollTopicsRepository.findByExclusivePost_Id(exclusivePostId);
+        List<PollTopics> pollTopicsInPost = this.pollTopicsRepository
+                .findByExclusivePost_IdOrderByUpdatedAtAsc(exclusivePostId);
         int totalVotes = this.pollTopicsService.getTotalVotes(pollTopicsInPost);
 
         List<PollTopicsPercentageDTO> pollTopics = this.pollTopicsService.getPollTopicsWithPercentage(

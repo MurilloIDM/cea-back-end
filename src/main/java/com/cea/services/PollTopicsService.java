@@ -28,7 +28,8 @@ public class PollTopicsService {
     private final StudentService studentService;
 
     public ResponsePollTopicsWithPercentageDTO findVotesWithPercentageByExclusivePostId(UUID exclusivePostId) {
-        List<PollTopics> pollTopics = this.pollTopicsRepository.findByExclusivePost_Id(exclusivePostId);
+        List<PollTopics> pollTopics = this.pollTopicsRepository
+                .findByExclusivePost_IdOrderByUpdatedAtAsc(exclusivePostId);
 
         if (pollTopics.size() == 0) {
             throw new HttpClientErrorException(HttpStatus.NO_CONTENT, "");
