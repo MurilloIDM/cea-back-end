@@ -84,10 +84,11 @@ public class ExclusivePostService {
         this.exclusivePostRepository.save(exclusivePost);
 
         for (PollTopicsDTO pollTopic : payload.getPollTopics()) {
+            LocalDateTime updatedAt = this.localDateTimeUtils.dateNow();
             PollTopics pollTopics = new PollTopics();
             pollTopics.setDescription(pollTopic.getDescription());
             pollTopics.setExclusivePost(exclusivePost);
-            pollTopics.setUpdatedAt(dateNow);
+            pollTopics.setUpdatedAt(updatedAt);
 
             this.pollTopicsRepository.save(pollTopics);
         }
@@ -270,10 +271,11 @@ public class ExclusivePostService {
             }
 
             PollTopics pollTopics = new PollTopics();
+            LocalDateTime updatedAt = this.localDateTimeUtils.dateNow();
             pollTopics.setId(pollTopic.getId());
             pollTopics.setDescription(pollTopic.getDescription());
             pollTopics.setExclusivePost(exclusivePost.get());
-            pollTopics.setUpdatedAt(dateNow);
+            pollTopics.setUpdatedAt(updatedAt);
 
             this.pollTopicsRepository.save(pollTopics);
         }
