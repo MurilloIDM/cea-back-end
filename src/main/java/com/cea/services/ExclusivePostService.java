@@ -255,11 +255,11 @@ public class ExclusivePostService {
         int totalVotes = this.pollTopicsService.getTotalVotes(existingPollTopics);
 
         if (totalVotes != 0) {
-            exclusivePost.get().setDescription(payload.getDescription());
             this.exclusivePostRepository.save(exclusivePost.get());
             return;
         }
 
+        exclusivePost.get().setDescription(payload.getDescription());
         this.exclusivePostRepository.save(exclusivePost.get());
 
         for (PollTopicsDTO pollTopic : payload.getPollTopics()) {
