@@ -251,18 +251,16 @@ public class ExclusivePostService {
 
         updateSurveyData(exclusivePost.get(), payload);
 
-        this.exclusivePostRepository.save(exclusivePost.get());
-
         List<PollTopics> existingPollTopics = this.pollTopicsRepository.findByExclusivePost_Id(id);
         int totalVotes = this.pollTopicsService.getTotalVotes(existingPollTopics);
 
         if (totalVotes != 0) {
-            throw new HttpClientErrorException(
-                    HttpStatus.BAD_REQUEST,
-                    "Enquete que já possui votos não pode ter tópicos atualizados ou adicionados!");
+            exclusivePost.get().setDescription(payload.getDescription());
+            this.exclusivePostRepository.save(exclusivePost.get());
+            return;
         }
 
-        LocalDateTime dateNow = this.localDateTimeUtils.dateNow();
+        this.exclusivePostRepository.save(exclusivePost.get());
 
         for (PollTopicsDTO pollTopic : payload.getPollTopics()) {
             if (pollTopic.isRemove()) {
@@ -381,7 +379,6 @@ public class ExclusivePostService {
 
         ExclusivePost exclusivePost = surveyDTO.toEntity();
         exclusivePostAlreadyExists.setTitle(exclusivePost.getTitle());
-        exclusivePostAlreadyExists.setDescription(exclusivePost.getDescription());
         exclusivePostAlreadyExists.setStatus(exclusivePost.isStatus());
         exclusivePostAlreadyExists.setUpdatedBy(exclusivePost.getUpdatedBy());
         exclusivePostAlreadyExists.setUpdatedAt(dateNow);
