@@ -36,7 +36,7 @@ public class CommentReplyResponseDTO {
             commentReplyResponse.setSocialName(commentReply.getStudent().getSocialName());
         } else {
             commentReplyResponse.setAuthorId(commentReply.getAdministrator().getId());
-            commentReplyResponse.setAuthorName(commentReply.getAdministrator().getName());
+            commentReplyResponse.setAuthorName("Administrador");
         }
 
         return commentReplyResponse;
