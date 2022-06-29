@@ -22,6 +22,7 @@ public class CommentReplyResponseDTO {
     private UUID authorId;
     private String authorName;
     private String socialName;
+    private boolean admin;
 
     public static CommentReplyResponseDTO toDTO(CommentReply commentReply) {
         CommentReplyResponseDTO commentReplyResponse = new CommentReplyResponseDTO();
@@ -34,9 +35,11 @@ public class CommentReplyResponseDTO {
             commentReplyResponse.setAuthorId(commentReply.getStudent().getId());
             commentReplyResponse.setAuthorName(commentReply.getStudent().getName());
             commentReplyResponse.setSocialName(commentReply.getStudent().getSocialName());
+            commentReplyResponse.setAdmin(false);
         } else {
             commentReplyResponse.setAuthorId(commentReply.getAdministrator().getId());
             commentReplyResponse.setAuthorName("Administrador");
+            commentReplyResponse.setAdmin(true);
         }
 
         return commentReplyResponse;
