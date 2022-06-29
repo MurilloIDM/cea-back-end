@@ -16,7 +16,6 @@ import java.util.UUID;
 public interface CommentReplyRepository extends JpaRepository<CommentReply, UUID> {
 
     Optional<CommentReply> findByIdAndStudent(UUID id, Student student);
-    Optional<CommentReply> findByIdAndAdministrator(UUID id, Administrator administrator);
     List<CommentReply> findAllByComment_IdAndStatusTrue(UUID commentId);
     Page<CommentReply> findAllByCommentIdAndStatusTrue(UUID commentId, Pageable pageRequest);
 

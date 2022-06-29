@@ -138,7 +138,7 @@ public class CommentService {
         }
 
         if (isAdmin) {
-            commentReply = this.commentReplyRepository.findByIdAndAdministrator(commentReplyId, administrator.get());
+            commentReply = this.commentReplyRepository.findById(commentReplyId);
         } else {
             commentReply = this.commentReplyRepository.findByIdAndStudent(commentReplyId, student.get());
         }
