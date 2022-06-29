@@ -68,7 +68,8 @@ public class JWTAuthenticateFilterAdministrator extends UsernamePasswordAuthenti
                 .sign(Algorithm.HMAC512(TOKEN_PASS));
 
         Gson gson = new Gson();
-        AccessTokenAdminDTO accessToken = new AccessTokenAdminDTO(token, administrator.getIsPrimaryAccess());
+        AccessTokenAdminDTO accessToken = new AccessTokenAdminDTO(
+                administrator.getId(), token, administrator.getIsPrimaryAccess());
 
         String accessTokenJson = gson.toJson(accessToken);
 
