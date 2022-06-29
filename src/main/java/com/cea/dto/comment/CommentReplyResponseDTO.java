@@ -38,7 +38,7 @@ public class CommentReplyResponseDTO {
             commentReplyResponse.setAdmin(false);
         } else {
             commentReplyResponse.setAuthorId(commentReply.getAdministrator().getId());
-            commentReplyResponse.setAuthorName("Administrador");
+            commentReplyResponse.setAuthorName("Equipe CEA");
             commentReplyResponse.setAdmin(true);
         }
 
