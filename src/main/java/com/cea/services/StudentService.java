@@ -304,6 +304,7 @@ public class StudentService {
             ResponseStudentDTO responseStudentDTO = new ResponseStudentDTO();
             responseStudentDTO.setId(student.getId());
             responseStudentDTO.setName(student.getName());
+            responseStudentDTO.setEmail(student.getEmail());
             responseStudentDTO.setStatus(student.isStatus());
             responseStudentDTO.setSocialName(student.getSocialName());
             responseStudentDTO.setExpirationDate(student.getExpirationDate());
