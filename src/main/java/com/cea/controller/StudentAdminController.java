@@ -1,5 +1,6 @@
 package com.cea.controller;
 
+import com.cea.dto.students.InactivateStudentDTO;
 import com.cea.dto.students.ResponsePageStudentsDTO;
 import com.cea.dto.students.StudentSocialNameDTO;
 import com.cea.dto.students.StudentUploadDTO;
@@ -23,7 +24,7 @@ import java.util.UUID;
 @RequestMapping("/admin/students")
 @RequiredArgsConstructor
 @Validated
-public class StudentAdminController {
+public class StudentAdminController extends BasicController {
 
     private final StudentService studentService;
 
@@ -62,5 +63,15 @@ public class StudentAdminController {
         List<StudentUploadDTO> operations = this.studentService.importStudents(file);
 
         return ResponseEntity.ok(operations);
+    }
+
+    @PatchMapping("/inactivate/{id}")
+    public ResponseEntity updateDateInactivation(
+        @PathVariable("id") UUID id,
+        @RequestBody @Valid InactivateStudentDTO payload
+    ) {
+        this.studentService.updateDateInactivation(payload.getExpirationDate(), id);
+
+        return ResponseEntity.ok().build();
     }
 }
