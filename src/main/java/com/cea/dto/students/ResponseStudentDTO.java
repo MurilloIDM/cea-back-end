@@ -16,6 +16,7 @@ public class ResponseStudentDTO {
     private String name;
     private boolean status;
     private String socialName;
+    private String email;
     private boolean inactivationSoon;
     private LocalDateTime expirationDate;
 

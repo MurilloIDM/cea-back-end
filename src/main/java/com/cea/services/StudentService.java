@@ -304,6 +304,7 @@ public class StudentService {
             ResponseStudentDTO responseStudentDTO = new ResponseStudentDTO();
             responseStudentDTO.setId(student.getId());
             responseStudentDTO.setName(student.getName());
+            responseStudentDTO.setEmail(student.getEmail());
             responseStudentDTO.setStatus(student.isStatus());
             responseStudentDTO.setSocialName(student.getSocialName());
             responseStudentDTO.setExpirationDate(student.getExpirationDate());
@@ -418,6 +419,28 @@ public class StudentService {
         }
 
         return operations;
+    }
+
+    public void updateDateInactivation(String expirationDateStr, UUID id) {
+        LocalDateTime expirationDate = this.localDateTimeUtils.convertStringToDate(expirationDateStr);
+        LocalDateTime dateNow = this.localDateTimeUtils.dateNow();
+
+        Optional<Student> hasStudent = this.studentRepository.findById(id);
+
+        if (hasStudent.isEmpty()) {
+            throw new HttpClientErrorException(HttpStatus.BAD_REQUEST, "Estudante não encontrado!");
+        }
+
+        boolean inactivationSoon = Student.withInactivationSoon(expirationDate, dateNow);
+        boolean isBeforeDate = this.localDateTimeUtils.validateDateTime(expirationDate, dateNow);
+
+        Student student = hasStudent.get();
+
+        student.setStatus(isBeforeDate);
+        student.setExpirationDate(expirationDate);
+        student.setInactivationSoon(inactivationSoon);
+
+        this.studentRepository.save(student);
     }
 
     private void basicInsert(ResponseDataClientDTO data, LocalDateTime expirationDate) {
