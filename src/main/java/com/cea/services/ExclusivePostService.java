@@ -29,6 +29,7 @@ public class ExclusivePostService {
     private final StudentRepository studentRepository;
     private final StudentVotesRepository studentVotesRepository;
     private final CommentRepository commentRepository;
+    private final LinkRepository linkRepository;
     private final PollTopicsService pollTopicsService;
     private final StudentService studentService;
     private final CommentService commentService;
@@ -55,6 +56,15 @@ public class ExclusivePostService {
             media.setExclusivePost(exclusivePost);
 
             this.mediaRepository.save(media);
+        }
+
+        for (LinkContentDTO linkContent : payload.getLinks()) {
+            Link link = new Link();
+            link.setLabel(linkContent.getLabel());
+            link.setUrl(linkContent.getUrl());
+            link.setExclusivePost(exclusivePost);
+
+            this.linkRepository.save(link);
         }
     }
 
@@ -169,6 +179,9 @@ public class ExclusivePostService {
             if (typePost.name().equals("TEXT")) {
                 List<Media> media = this.mediaRepository.findByExclusivePost_Id(id);
                 exclusivePost.setMedia(media);
+
+                List<Link> links = this.linkRepository.findByExclusivePost_Id(id);
+                exclusivePost.setLinks(links);
             }
 
             if (typePost.name().equals("SURVEY")) {
@@ -223,6 +236,21 @@ public class ExclusivePostService {
             media.setExclusivePost(exclusivePost.get());
 
             this.mediaRepository.save(media);
+        }
+
+        for (LinkContentDTO linkContent : payload.getLinks()) {
+            if (linkContent.isRemove()) {
+                this.linkRepository.deleteById(linkContent.getId());
+                continue;
+            }
+
+            Link link = new Link();
+            link.setId(linkContent.getId());
+            link.setLabel(linkContent.getLabel());
+            link.setUrl(linkContent.getUrl());
+            link.setExclusivePost(exclusivePost.get());
+
+            this.linkRepository.save(link);
         }
     }
 

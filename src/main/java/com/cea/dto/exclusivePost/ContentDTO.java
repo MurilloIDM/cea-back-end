@@ -27,6 +27,8 @@ public class ContentDTO {
     private String username;
     @Valid
     private List<MediaContentDTO> media;
+    @Valid
+    private List<LinkContentDTO> links;
 
     public ExclusivePost toEntity() {
         ExclusivePost exclusivePost = new ExclusivePost();
