@@ -3,6 +3,7 @@ package com.cea.dto.exclusivePost;
 import com.cea.dto.pollTopics.PollTopicsPercentageDTO;
 import com.cea.enums.TypeExclusivePost;
 import com.cea.models.ExclusivePost;
+import com.cea.models.Link;
 import com.cea.models.Media;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -29,6 +30,7 @@ public class ExclusivePostWithMediaOrPollTopicsDTO {
     private String createdBy;
     private String updatedBy;
     private int totalComments;
+    private List<Link> links = new ArrayList<Link>();
     private List<Media> media = new ArrayList<Media>();
     private List<PollTopicsPercentageDTO> pollTopics = new ArrayList<PollTopicsPercentageDTO>();
 

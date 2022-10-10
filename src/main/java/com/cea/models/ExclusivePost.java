@@ -42,5 +42,8 @@ public class ExclusivePost implements Serializable {
     @JsonIgnore
     @OneToMany(mappedBy = "exclusivePost")
     private List<PollTopics> pollTopics = new ArrayList<PollTopics>();
+    @JsonIgnore
+    @OneToMany(mappedBy = "exclusivePost")
+    private List<Link> links = new ArrayList<Link>();
 
 }
