@@ -20,6 +20,7 @@ public class CommentResponseDTO {
     private String authorName;
     private String socialName;
     private int totalCommentsReply;
+    private boolean admin;
 
     public static CommentResponseDTO toDTO(Comment comment) {
         CommentResponseDTO commentResponse = new CommentResponseDTO();
@@ -27,9 +28,17 @@ public class CommentResponseDTO {
         commentResponse.setId(comment.getId());
         commentResponse.setText(comment.getText());
         commentResponse.setCreatedAt(comment.getCreatedAt());
-        commentResponse.setAuthorId(comment.getStudent().getId());
-        commentResponse.setAuthorName(comment.getStudent().getName());
-        commentResponse.setSocialName(comment.getStudent().getSocialName());
+
+        if (comment.getStudent() != null) {
+            commentResponse.setAuthorId(comment.getStudent().getId());
+            commentResponse.setAuthorName(comment.getStudent().getName());
+            commentResponse.setSocialName(comment.getStudent().getSocialName());
+            commentResponse.setAdmin(false);
+        } else {
+            commentResponse.setAuthorId(comment.getStudent().getId());
+            commentResponse.setAuthorName("Equipe CEA");
+            commentResponse.setAdmin(true);
+        }
 
         return commentResponse;
     }

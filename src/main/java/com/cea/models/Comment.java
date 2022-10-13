@@ -30,6 +30,10 @@ public class Comment implements Serializable {
     @JsonIgnore
     private Student student;
     @ManyToOne
+    @JoinColumn(name = "administrator_id", nullable = true)
+    @JsonIgnore
+    private Administrator administrator;
+    @ManyToOne
     @JoinColumn(name = "exclusive_post_id", nullable = false)
     @JsonIgnore
     private ExclusivePost exclusivePost;
