@@ -32,10 +32,26 @@ public class CommentService {
 
 
     public void addComment(CommentDTO payload) {
-        UUID studentId = payload.getStudentId();
+        boolean isAdmin = false;
+
+        Optional<Student> student = null;
+        Optional<Administrator> administrator = null;
+
+        UUID userId = payload.getStudentId();
         UUID exclusivePostId = payload.getExclusivePostId();
 
-        Student student = this.studentService.findById(studentId);
+        student = this.studentRepository.findById(userId);
+
+        if (student.isEmpty()) {
+            administrator = this.administratorRepository.findById(userId);
+
+            if (administrator.isEmpty()) {
+                throw new HttpClientErrorException(HttpStatus.BAD_REQUEST, "Estudante/Administrator não encontrado!");
+            }
+
+            isAdmin = true;
+        }
+
         Optional<ExclusivePost> exclusivePost = this.exclusivePostRepository.findById(exclusivePostId);
 
         if (exclusivePost.isEmpty()) {
@@ -57,9 +73,14 @@ public class CommentService {
         Comment comment = new Comment();
         comment.setText(text);
         comment.setStatus(true);
-        comment.setStudent(student);
         comment.setCreatedAt(dateNow);
         comment.setExclusivePost(exclusivePost.get());
+
+        if (isAdmin) {
+            comment.setAdministrator(administrator.get());
+        } else {
+            comment.setStudent(student.get());
+        }
 
         this.commentRepository.save(comment);
     }

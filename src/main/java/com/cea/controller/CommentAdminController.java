@@ -19,6 +19,13 @@ public class CommentAdminController {
 
     private final CommentService commentService;
 
+    @PostMapping("/create")
+    public ResponseEntity addComment(@RequestBody @Valid CommentDTO payload) {
+        this.commentService.addComment(payload);
+
+        return ResponseEntity.ok().build();
+    }
+
     @PostMapping("/reply/create")
     public ResponseEntity addCommentReply(@RequestBody @Valid CommentReplyDTO payload) {
         this.commentService.addCommentReply(payload);
