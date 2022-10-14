@@ -26,7 +26,7 @@ public class Comment implements Serializable {
     private boolean status;
     private LocalDateTime createdAt;
     @ManyToOne
-    @JoinColumn(name = "student_id", nullable = false)
+    @JoinColumn(name = "student_id", nullable = true)
     @JsonIgnore
     private Student student;
     @ManyToOne
