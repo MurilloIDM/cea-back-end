@@ -35,7 +35,7 @@ public class CommentResponseDTO {
             commentResponse.setSocialName(comment.getStudent().getSocialName());
             commentResponse.setAdmin(false);
         } else {
-            commentResponse.setAuthorId(comment.getStudent().getId());
+            commentResponse.setAuthorId(comment.getAdministrator().getId());
             commentResponse.setAuthorName("Equipe CEA");
             commentResponse.setAdmin(true);
         }
