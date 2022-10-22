@@ -18,7 +18,7 @@ public class RegisterPasswordDTO {
     private String email;
     @NotBlank(message = "Campo obrigatório! Não deve ser vazio.")
     @Pattern(
-            regexp = "^(?=.*\\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[$*&@#])(?:([0-9a-zA-Z$*&@#])(?!\\1)){8,}$",
+            regexp = "(?=^.{8,}$)((?=.*\\d)(?=.*\\W+))(?![.\\n])(?=.*[A-Z])(?=.*[a-z]).*$",
             message = "A senha não está dentro do padrão! Deve conter letras minúsculas e maiúsculas," +
                     "números e caracteres especiais.")
     private String password;
