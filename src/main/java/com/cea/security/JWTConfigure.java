@@ -80,4 +80,33 @@ public class JWTConfigure {
 
     }
 
+    @Configuration
+    @Order(3)
+    @RequiredArgsConstructor
+    public static class AuthConfigurePublic extends WebSecurityConfigurerAdapter {
+
+        private final ConfigProperties configProperties;
+
+        @Override
+        protected void configure(AuthenticationManagerBuilder auth) throws Exception {
+            PasswordEncoder passwordEncoder = PasswordEncoderFactories.createDelegatingPasswordEncoder();
+            auth.inMemoryAuthentication()
+                    .withUser(configProperties.getProperty("token.basic.user"))
+                    .password(passwordEncoder.encode(configProperties.getProperty("token.basic.password")))
+                    .roles("ADMIN");
+        }
+
+        @Override
+        protected void configure(HttpSecurity http) throws Exception {
+            http.authorizeRequests()
+                    .antMatchers(HttpMethod.GET, "/freeposts/**").authenticated()
+                    .antMatchers(HttpMethod.GET, "/leads/**").authenticated()
+                    .antMatchers(HttpMethod.POST, "/leads/**").authenticated()
+                    .antMatchers(HttpMethod.GET, "/students/**").authenticated()
+                    .antMatchers(HttpMethod.POST, "/students/**").authenticated()
+                    .and()
+                    .httpBasic();
+        }
+    }
+
 }
